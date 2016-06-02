@@ -31,10 +31,30 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.provider.asymmetric.ec.KeyPairGenerator;
 import org.bouncycastle.x509.X509V3CertificateGenerator;
 
+/**
+ * @author Daniel Matthews-Grout
+ * 
+ * Utilities for working with certificates and keys
+ *
+ */
+@SuppressWarnings("deprecation")
 public class CertificateTools {
 
 	private static final Random ran = new SecureRandom();
-	@SuppressWarnings("deprecation")
+	/**
+	 * Generates a certificate and private key
+	 * 
+	 * 
+	 * @param signatureAlgorithm
+	 * @param keyAlgorithm
+	 * @return an instance CertificateAndKey with the right bits
+	 * @throws CertificateEncodingException
+	 * @throws InvalidKeyException
+	 * @throws IllegalStateException
+	 * @throws NoSuchProviderException
+	 * @throws NoSuchAlgorithmException
+	 * @throws SignatureException
+	 */
 	public static CertificateAndKey generateCertAndKey(String signatureAlgorithm, String keyAlgorithm) throws CertificateEncodingException, InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException {
 	
 		// load the provider on instantiation of the class
@@ -65,7 +85,15 @@ public class CertificateTools {
 		
 	}
 	
-	public static Certificate loadRSACertificate(Path file) throws IOException, CertificateException {
+	/**
+	 * Loads a certificate from a file
+	 * 
+	 * @param file path to the certificate to load
+	 * @return an instance of Certificate loaded from the file
+	 * @throws IOException
+	 * @throws CertificateException
+	 */
+	public static Certificate loadX509Certificate(Path file) throws IOException, CertificateException {
 		
 		byte[] data = Files.readAllBytes(file);
 		
@@ -75,6 +103,15 @@ public class CertificateTools {
 	}
 	
 	
+	/**
+	 * Loads a private key from a file
+	 * 
+	 * @param file path to a file containing the private key in PKCS8
+	 * @return an instance of PrivateKey based on the file passed
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
+	 */
 	public static PrivateKey loadRSAPrivateKey(Path file) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		
 		byte[] keyBytes = Files.readAllBytes(file);

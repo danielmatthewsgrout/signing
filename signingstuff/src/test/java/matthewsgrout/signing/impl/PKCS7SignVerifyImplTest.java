@@ -29,7 +29,7 @@ public class PKCS7SignVerifyImplTest {
 	
 		CertificateAndKey ck = CertificateTools.generateCertAndKey(SIGN_ALGO,KEY_ALGO);
 		
-		SignVerify sv = new PKCS7SignVerifyImpl();
+		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
 		
 		byte[] signed = sv.signDetached(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
 		
@@ -42,7 +42,7 @@ public class PKCS7SignVerifyImplTest {
 	public void testSignEncapulsated() throws OperatorCreationException, CMSException, IOException, CertificateException, InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException {
 	CertificateAndKey ck = CertificateTools.generateCertAndKey(SIGN_ALGO,KEY_ALGO);
 		
-		SignVerify sv = new PKCS7SignVerifyImpl();
+		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
 		
 		byte[] signed = sv.signEncapulsated(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
 		

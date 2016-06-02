@@ -30,11 +30,19 @@ import org.bouncycastle.operator.jcajce.JcaDigestCalculatorProviderBuilder;
 
 import matthewsgrout.signing.SignVerify;
 
+/**
+ * @author Daniel Matthews-Grout
+ * 
+ * 
+ * PKCS7 implementation of the SignVerify interface
+ *
+ */
 public class PKCS7SignVerifyImpl implements SignVerify {
-	private static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
+	private final String signatureAlgorithm;
 	private static final String PROVIDER = "BC";
 
-	public PKCS7SignVerifyImpl() {
+	public PKCS7SignVerifyImpl(String signatureAlgorithm) {
+		this.signatureAlgorithm=signatureAlgorithm;
 		// load the provider on instantiation of the class
 		Security.addProvider(new BouncyCastleProvider());
 	}
@@ -64,7 +72,7 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 
 		CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
 		// get our signer!
-		ContentSigner sha1Signer = new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).setProvider(PROVIDER)
+		ContentSigner sha1Signer = new JcaContentSignerBuilder(signatureAlgorithm).setProvider(PROVIDER)
 				.build(kp.getPrivate());
 		// add the signing info to the signature
 		JcaSignerInfoGeneratorBuilder sigBuilder = new JcaSignerInfoGeneratorBuilder(

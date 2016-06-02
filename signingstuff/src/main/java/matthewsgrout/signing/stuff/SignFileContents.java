@@ -18,6 +18,7 @@ import matthewsgrout.signing.impl.PKCS7SignVerifyImpl;
 import matthewsgrout.signing.util.CertificateTools;
 
 public class SignFileContents {
+	private static final String SIGN_ALGO="SHA1withRSA";
 
 	public static void main(String[] args) {
 
@@ -45,10 +46,10 @@ public class SignFileContents {
 			
 			try {
 				byte[] data = Files.readAllBytes(new File(pathToFile).toPath());
-				Certificate cert  = CertificateTools.loadRSACertificate(new File(pathToCert).toPath());
+				Certificate cert  = CertificateTools.loadX509Certificate(new File(pathToCert).toPath());
 				PrivateKey privateKey = CertificateTools.loadRSAPrivateKey(new File(pathToPK).toPath());
 				
-				SignVerify sv = new PKCS7SignVerifyImpl();
+				SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
 				
 				byte[] signed = encap? sv.signEncapulsated(cert, data, privateKey):sv.signDetached(cert, data, privateKey);
 				
