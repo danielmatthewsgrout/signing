@@ -21,7 +21,6 @@ public class SignFileContents {
 	private static final String SIGN_ALGO="SHA1withRSA";
 
 	public static void main(String[] args) {
-
 		
 		System.out.println("Sign File Contents");
 		System.out.println("------------------");
