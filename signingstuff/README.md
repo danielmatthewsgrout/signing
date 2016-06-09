@@ -2,7 +2,7 @@ Sign File Contents
 ------------------
 * Certificate and key files must be in pem format
 * Files must not use passsword in this version
-* Signatures will be PKCS#7 using SHA1withRSA encoded in Base64
+* Signatures will be PKCS#7 using SHA512withRSA encoded in Base64
 
 ---
 To execute with Maven:
