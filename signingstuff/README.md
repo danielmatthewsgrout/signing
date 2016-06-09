@@ -7,7 +7,7 @@ Sign File Contents
 ---
 To execute with Maven:
 
-mvn exec:java -Dexec.args="combined ./src/test/resources/test.pem ./src/test/resources/test.txt true"
+mvn exec:java -Dexec.args="combined ./src/test/resources/test.pem ./src/test/resources/test.txt false"
 
 
 Usage: SignFileContents separate [path to certificate] [path to private key] [path to data to sign] [encapsulate true or false]
