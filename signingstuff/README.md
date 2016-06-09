@@ -7,7 +7,7 @@ Sign File Contents
 ---
 To execute with Maven:
 
-mvn exec:java -Dexec.args="combined ./src/test/resources/test.pem ./src/test/resources/test.txt true"
+mvn exec:java -Dexec.args="combined ./src/test/resources/test.pem ./src/test/resources/test.txt false"
 
 To build a jar with dependencies:
 
