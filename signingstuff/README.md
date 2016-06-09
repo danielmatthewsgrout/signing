@@ -15,4 +15,4 @@ mvn clean compile assembly:single
 
 To run the jar with dependencies:
 
-java -jar signingstuff-1.0-jar-with-dependencies.jar
+java -jar signingstuff-1.0-jar-with-dependencies.jar ./src/test/resources/test.pem ./src/test/resources/test.txt false
