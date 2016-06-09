@@ -9,7 +9,6 @@ import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.Test;
@@ -45,7 +44,6 @@ public class PKCS7SignVerifyImplTest {
 		byte[] signed = sv.signEncapulsated(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
 		
 		assertTrue(sv.verifyEncapsulated(signed));
-	
 	}
 
 }

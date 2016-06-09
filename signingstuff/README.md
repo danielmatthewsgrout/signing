@@ -9,7 +9,10 @@ To execute with Maven:
 
 mvn exec:java -Dexec.args="combined ./src/test/resources/test.pem ./src/test/resources/test.txt true"
 
+To build a jar with dependencies:
 
-Usage: SignFileContents separate [path to certificate] [path to private key] [path to data to sign] [encapsulate true or false]
+mvn clean compile assembly:single
 
-or: SignFileContents combined [path to pem] [path to data to sign] [encapsulate true or false]
+To run the jar with dependencies:
+
+java -jar signingstuff-1.0-jar-with-dependencies.jar
