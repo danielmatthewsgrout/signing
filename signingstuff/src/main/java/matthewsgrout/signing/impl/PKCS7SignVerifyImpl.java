@@ -39,7 +39,7 @@ import matthewsgrout.signing.SignVerify;
  */
 public class PKCS7SignVerifyImpl implements SignVerify {
 	private final String signatureAlgorithm;
-	private static final String PROVIDER = "BC";
+	private static final String PROVIDER = BouncyCastleProvider.PROVIDER_NAME;
 
 	public PKCS7SignVerifyImpl(String signatureAlgorithm) {
 		this.signatureAlgorithm=signatureAlgorithm;
@@ -72,13 +72,13 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 
 		CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
 		// get our signer!
-		ContentSigner sha1Signer = new JcaContentSignerBuilder(signatureAlgorithm).setProvider(PROVIDER)
+		ContentSigner signer = new JcaContentSignerBuilder(signatureAlgorithm).setProvider(PROVIDER)
 				.build(kp.getPrivate());
 		// add the signing info to the signature
 		JcaSignerInfoGeneratorBuilder sigBuilder = new JcaSignerInfoGeneratorBuilder(
 				new JcaDigestCalculatorProviderBuilder().setProvider(PROVIDER).build());
 
-		SignerInfoGenerator sig = sigBuilder.build(sha1Signer, (X509Certificate) cert);
+		SignerInfoGenerator sig = sigBuilder.build(signer, (X509Certificate) cert);
 		gen.addSignerInfoGenerator(sig);
 		// add the certificates to the signature information
 		gen.addCertificates(new JcaCertStore(Arrays.asList(new Certificate[] { cert })));

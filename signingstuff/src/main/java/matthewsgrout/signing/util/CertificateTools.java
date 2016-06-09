@@ -45,6 +45,13 @@ import org.bouncycastle.x509.X509V3CertificateGenerator;
 @SuppressWarnings("deprecation")
 public class CertificateTools {
 
+	
+	static {
+		// load the provider on instantiation of the class
+				Security.addProvider(new BouncyCastleProvider());
+			
+		
+	}
 	private static final Random ran = new SecureRandom();
 	/**
 	 * Generates a certificate and private key
@@ -62,9 +69,7 @@ public class CertificateTools {
 	 */
 	public static CertificateAndKey generateCertAndKey(String signatureAlgorithm, String keyAlgorithm) throws CertificateEncodingException, InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException {
 	
-		// load the provider on instantiation of the class
-		Security.addProvider(new BouncyCastleProvider());
-		
+			
 		Calendar cal = Calendar.getInstance();
 		Date startDate = cal.getTime();                // time from which certificate is valid
 		cal.add(Calendar.YEAR, 10);
@@ -82,7 +87,7 @@ public class CertificateTools {
 		certGen.setPublicKey(keyPair.getPublic());
 		certGen.setSignatureAlgorithm(signatureAlgorithm);
 		
-		X509Certificate cert = certGen.generate(keyPair.getPrivate(), "BC");
+		X509Certificate cert = certGen.generate(keyPair.getPrivate(), BouncyCastleProvider.PROVIDER_NAME);
 		 
 		return new CertificateAndKey(cert, keyPair.getPrivate());
 		
@@ -158,8 +163,8 @@ public class CertificateTools {
 		Certificate cert=null;
 		 try ( PEMParser pemParser =  new PEMParser(new InputStreamReader(new ByteArrayInputStream(pemBytes)))) {
 			        
-	        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-	        JcaX509CertificateConverter certconv = new JcaX509CertificateConverter().setProvider("BC");
+	        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
+	        JcaX509CertificateConverter certconv = new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
 	        
 	        for (Object o = pemParser.readObject(); o !=null; o=pemParser.readObject() ) {
 	        	

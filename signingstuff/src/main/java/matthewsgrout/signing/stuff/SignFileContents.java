@@ -20,13 +20,12 @@ import matthewsgrout.signing.util.CertificateAndKey;
 import matthewsgrout.signing.util.CertificateTools;
 
 public class SignFileContents {
-	private static final String SIGN_ALGO="SHA1withRSA";
+	private static final String SIGN_ALGO="SHA512withRSA";
+//	private static final String SIGN_ALGO="SHA1withRSA";
 
+	
+	
 	public static void main(String[] args) {
-		
-		System.out.println("Sign File Contents");
-		System.out.println("------------------");
-		
 		//param 0 = path to certificate
 		//param 1 = path to private key file base64 enc
 		//param 2 = path to file to sign
@@ -37,23 +36,21 @@ public class SignFileContents {
 			showHelp();
 		} else {
 			try {
-				
-			boolean encap = Boolean.parseBoolean(args[4]);
+				boolean encap = false;
 			
-			if (encap) System.out.println("using encapsulated signature");
-			
-			String pathToFile = args[3];
-			byte[] data = Files.readAllBytes(new File(pathToFile).toPath());
-
-				
+				byte[] data;
 				Certificate cert;
 				PrivateKey privateKey;
-				if (args[0].equalsIgnoreCase("separate")) {
+				String pathToFile;
+					if (args[0].equalsIgnoreCase("separate")) {
 					if (args.length !=5) {
 						showHelp();
 						return;
 					}
-					
+					pathToFile = args[3];
+					data = Files.readAllBytes(new File(pathToFile).toPath());
+	
+					encap=Boolean.parseBoolean(args[4]);
 					String pathToCert = args[1];
 					String pathToPK = args[2];
 					System.out.println("loading cert and key from files: " + pathToCert + " and " + pathToPK);
@@ -64,16 +61,18 @@ public class SignFileContents {
 					privateKey = CertificateTools.loadRSAPrivateKey(keyBytes);
 				} else if (args[0].equalsIgnoreCase("combined")) {
 								
-					if (args.length !=3) {
+					if (args.length !=4) {
 							showHelp();
 							return;
 					}
+					pathToFile = args[2];
+					data = Files.readAllBytes(new File(pathToFile).toPath());
+	
 					String pem =args[1];
-					
-					System.out.println("loading cert and key from pem: " + pem);
+					encap=Boolean.parseBoolean(args[3]);
 					
 					byte[] bytes = Files.readAllBytes(new File(pem).toPath());
-
+	
 					CertificateAndKey cak = CertificateTools.loadCombined(bytes);
 					
 					cert=cak.getCertificate();
@@ -83,13 +82,10 @@ public class SignFileContents {
 					return;
 				}
 				SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
-				System.out.println("signing file: " + pathToFile);
+				if (encap) System.out.println("using encapsulated signature");
 				byte[] signed = encap? sv.signEncapulsated(cert, data, privateKey):sv.signDetached(cert, data, privateKey);
 				
 				String base64 = Base64.encodeBase64String(signed);
-				System.out.println("Result");
-				System.out.println("------");
-				System.out.println("");
 				System.out.println(base64);
 			} catch (IOException | CertificateException | NoSuchAlgorithmException | InvalidKeySpecException | OperatorCreationException | CMSException | PKCSException e) {
 				e.printStackTrace();
@@ -98,6 +94,8 @@ public class SignFileContents {
 	}
 	
 	private static void showHelp()  {
+		System.out.println("Sign File Contents");
+		System.out.println("------------------");
 		System.out.println("* Certificate and key files must be in pem format");
 		System.out.println("* Pem files must not use passsword in this version");
 		System.out.println("* Signatures will be PKCS#7 using " + SIGN_ALGO + " encoded in Base64");

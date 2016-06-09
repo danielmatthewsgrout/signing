@@ -24,7 +24,6 @@ public class CertificateToolsTest {
 	private static final String SIGN_ALGO="SHA1withRSA";
 	private final SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
 
-	
 	//http://fm4dd.com/openssl/certexamples.htm
 	
 	@Test
