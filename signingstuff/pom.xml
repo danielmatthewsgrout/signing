@@ -12,13 +12,19 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk16</artifactId>
-			<version>1.46</version>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.54</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcmail-jdk16</artifactId>
-			<version>1.46</version>
+			<artifactId>bcmail-jdk15on</artifactId>
+			<version>1.54</version>
+		</dependency>
+		<!-- http://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcpkix-jdk15on</artifactId>
+			<version>1.54</version>
 		</dependency>
 
 		<dependency>
@@ -32,6 +38,13 @@
 			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- http://mvnrepository.com/artifact/com.google.guava/guava -->
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>19.0</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -43,7 +56,7 @@
 					<target>${java.version}</target>
 				</configuration>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
