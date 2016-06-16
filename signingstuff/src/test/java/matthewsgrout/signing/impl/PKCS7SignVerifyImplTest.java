@@ -3,7 +3,6 @@ package matthewsgrout.signing.impl;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -41,7 +40,6 @@ public class PKCS7SignVerifyImplTest {
 		byte[] decode = Base64.decode(b64.getBytes(StandardCharsets.UTF_8));
 		assertTrue(sv.verifyDetached(decode, TEST_TEXT.getBytes()));
 		assertTrue(sv.verifyDetached(signed, TEST_TEXT.getBytes()));
-		
 	}
 
 	@Test
