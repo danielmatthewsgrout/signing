@@ -9,8 +9,18 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 
+import org.bouncycastle.asn1.ASN1EncodableVector;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSet;
+import org.bouncycastle.asn1.DERUTCTime;
+import org.bouncycastle.asn1.cms.Attribute;
+import org.bouncycastle.asn1.cms.AttributeTable;
+import org.bouncycastle.asn1.cms.CMSAttributes;
+import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaCertStore;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -18,7 +28,9 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSProcessableByteArray;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.cms.CMSSignedDataGenerator;
+import org.bouncycastle.cms.DefaultSignedAttributeTableGenerator;
 import org.bouncycastle.cms.SignerInfoGenerator;
+import org.bouncycastle.cms.SignerInfoGeneratorBuilder;
 import org.bouncycastle.cms.SignerInformation;
 import org.bouncycastle.cms.jcajce.JcaSignerInfoGeneratorBuilder;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
@@ -68,22 +80,30 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 	private byte[] sign(boolean encapulate, byte[] data, Certificate cert, PrivateKey key)
 			throws OperatorCreationException, CertificateEncodingException, CMSException, IOException {
 
-		KeyPair kp = new KeyPair(cert.getPublicKey(), key);
 
-		CMSSignedDataGenerator gen = new CMSSignedDataGenerator();
-		// get our signer!
-		ContentSigner signer = new JcaContentSignerBuilder(signatureAlgorithm).setProvider(PROVIDER)
-				.build(kp.getPrivate());
-		// add the signing info to the signature
-		JcaSignerInfoGeneratorBuilder sigBuilder = new JcaSignerInfoGeneratorBuilder(
-				new JcaDigestCalculatorProviderBuilder().setProvider(PROVIDER).build());
+		   /* Construct signed attributes */
+	    ASN1EncodableVector signedAttributes = new ASN1EncodableVector();
+	    signedAttributes.add(new Attribute(CMSAttributes.contentType, new DERSet(new ASN1ObjectIdentifier(CMSObjectIdentifiers.data.getId()))));
+	    signedAttributes.add(new Attribute(CMSAttributes.signingTime, new DERSet(new DERUTCTime(Calendar.getInstance().getTime()))));
 
-		SignerInfoGenerator sig = sigBuilder.build(signer, (X509Certificate) cert);
-		gen.addSignerInfoGenerator(sig);
+	    
+	    
+	    AttributeTable signedAttributesTable = new AttributeTable(signedAttributes);
+	    signedAttributesTable.toASN1EncodableVector();
+	    DefaultSignedAttributeTableGenerator signedAttributeGenerator = new DefaultSignedAttributeTableGenerator(signedAttributesTable);
+
+	    SignerInfoGeneratorBuilder signerInfoBuilder = new SignerInfoGeneratorBuilder(new JcaDigestCalculatorProviderBuilder().setProvider("BC").build());
+	    signerInfoBuilder.setSignedAttributeGenerator(signedAttributeGenerator);
+	    CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
+	    JcaContentSignerBuilder contentSigner = new JcaContentSignerBuilder(signatureAlgorithm);
+	    contentSigner.setProvider(PROVIDER);
+
+	    generator.addSignerInfoGenerator(signerInfoBuilder.build(contentSigner.build(key), new X509CertificateHolder(cert.getEncoded())));
+
 		// add the certificates to the signature information
-		gen.addCertificates(new JcaCertStore(Arrays.asList(new Certificate[] { cert })));
+	    generator.addCertificates(new JcaCertStore(Arrays.asList(new Certificate[] { cert })));
 		// do the actual signing
-		CMSSignedData sigData = gen.generate(new CMSProcessableByteArray(data), encapulate);
+		CMSSignedData sigData = generator.generate(new CMSProcessableByteArray(data), encapulate);
 		// return Base64 encoded string
 		return sigData.getEncoded();
 	}

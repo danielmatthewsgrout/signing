@@ -3,6 +3,8 @@ package matthewsgrout.signing.impl;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
@@ -11,6 +13,7 @@ import java.security.cert.CertificateException;
 
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.util.encoders.Base64;
 import org.junit.Test;
 
 import matthewsgrout.signing.SignVerify;
@@ -31,8 +34,14 @@ public class PKCS7SignVerifyImplTest {
 		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
 		
 		byte[] signed = sv.signDetached(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
-		
+
 		assertTrue(sv.verifyDetached(signed, TEST_TEXT.getBytes()));
+		String b64=new String(Base64.encode(signed),StandardCharsets.UTF_8);
+		System.out.println(b64);
+		byte[] decode = Base64.decode(b64.getBytes(StandardCharsets.UTF_8));
+		assertTrue(sv.verifyDetached(decode, TEST_TEXT.getBytes()));
+		assertTrue(sv.verifyDetached(signed, TEST_TEXT.getBytes()));
+		
 	}
 
 	@Test
@@ -42,7 +51,10 @@ public class PKCS7SignVerifyImplTest {
 		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
 		
 		byte[] signed = sv.signEncapulsated(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
-		
+		String b64=new String(Base64.encode(signed),StandardCharsets.UTF_8);
+		System.out.println(b64);
+		byte[] decode = Base64.decode(b64.getBytes(StandardCharsets.UTF_8));
+		assertTrue(sv.verifyEncapsulated(decode));
 		assertTrue(sv.verifyEncapsulated(signed));
 	}
 

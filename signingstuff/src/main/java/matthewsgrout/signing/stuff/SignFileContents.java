@@ -2,6 +2,7 @@ package matthewsgrout.signing.stuff;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -9,10 +10,10 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCSException;
+import org.bouncycastle.util.encoders.Base64;
 
 import matthewsgrout.signing.SignVerify;
 import matthewsgrout.signing.impl.PKCS7SignVerifyImpl;
@@ -42,7 +43,7 @@ public class SignFileContents {
 				Certificate cert;
 				PrivateKey privateKey;
 				String pathToFile;
-					if (args[0].equalsIgnoreCase("separate")) {
+				if (args[0].equalsIgnoreCase("separate")) {
 					if (args.length !=5) {
 						showHelp();
 						return;
@@ -85,7 +86,8 @@ public class SignFileContents {
 				if (encap) System.out.println("using encapsulated signature");
 				byte[] signed = encap? sv.signEncapulsated(cert, data, privateKey):sv.signDetached(cert, data, privateKey);
 				
-				String base64 = Base64.encodeBase64String(signed);
+				String base64 = new String(Base64.encode(signed),StandardCharsets.UTF_8);
+
 				System.out.println(base64);
 			} catch (IOException | CertificateException | NoSuchAlgorithmException | InvalidKeySpecException | OperatorCreationException | CMSException | PKCSException e) {
 				e.printStackTrace();
@@ -94,8 +96,10 @@ public class SignFileContents {
 	}
 	
 	private static void showHelp()  {
-		System.out.println("Sign File Contents");
-		System.out.println("------------------");
+		System.out.println("Sign File Contents v1.1 16/06/16");
+		System.out.println("---------------------------------");
+		System.out.println("https://github.com/danielajgrout/signing/tree/master/signingstuff");
+		System.out.println("---------------------------------");
 		System.out.println("* Certificate and key files must be in pem format");
 		System.out.println("* Pem files must not use passsword in this version");
 		System.out.println("* Signatures will be PKCS#7 using " + SIGN_ALGO + " encoded in Base64");
