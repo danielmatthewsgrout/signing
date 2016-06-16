@@ -19,16 +19,20 @@ java -jar signingstuff-1.0-jar-with-dependencies.jar
 
 ---
 
-Sign and Verify  File Contents v2.0
------------------------------------------------------------------
-https://github.com/danielajgrout/signing/tree/master/signingstuff
-------------------------------------------------------------------
+[-------------------------------------------------------------------]
+|              Sign and Verify File Contents v2.0                   |
+|-------------------------------------------------------------------|
+| https://github.com/danielajgrout/signing/tree/master/signingstuff |
+[-------------------------------------------------------------------]
 
 usage: SignVerifyFileContents
  -certAndKeyFile <path>   path to combined certificate and key file
  -certFile <path>         path to certificate file
- -hashMode <mode>         Hashing Mode: SHA1 or SHA256 or SHA512
- -in <path>               path to the input data
+ -det                     detached signature
+ -encap                   encapsulated signature
+ -hash <mode>             Hashing Mode: SHA1 or SHA256 or SHA512
+ -in <path>               path to the input data to sign or verify
  -keyFile <path>          path to key file
  -keyType <mode>          how are the keys presented: combined or seperate
  -mode <mode>             mode in which to operate: sign or verify
+ -sig <path>              path to the detached signature for verification
