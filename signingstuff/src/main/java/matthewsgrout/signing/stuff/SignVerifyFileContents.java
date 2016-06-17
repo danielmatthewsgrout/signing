@@ -74,7 +74,7 @@ public class SignVerifyFileContents {
 			cert=cak.getCertificate();
 			privateKey=cak.getKey();
 			break;
-		case "seperate":
+		case "separate":
 			if (!(cmd.hasOption("certFile") && cmd.hasOption("keyFile") )) {
 				showHelp("please specify path to certificate and key files");
 				return;
@@ -90,7 +90,7 @@ public class SignVerifyFileContents {
 			return;
 		}
 		
-		if (!(cmd.hasOption("encap")&&cmd.hasOption("det"))) {
+		if (!(cmd.hasOption("encap")||cmd.hasOption("det"))) {
 			showHelp("please select encapsulated or detached");
 			return;
 		}
@@ -109,10 +109,10 @@ public class SignVerifyFileContents {
 			System.out.println(base64);
 			break;
 		case "verify":
-			byte[] decoded = Base64.decode(data);
 			
-			boolean verify = encap? sv.verifyEncapsulated(decoded): sv.verifyDetached(data, 
-					Files.readAllBytes(new File(cmd.getOptionValue("sig")).toPath()));
+			boolean verify = encap? sv.verifyEncapsulated(Base64.decode(data)): 
+				sv.verifyDetached(Base64.decode(Files.readAllBytes(new File(cmd.getOptionValue("sig")).toPath())),
+						data);
 			
 			System.out.println(verify?"VERIFIED":"FAILED TO VERIFY");
 			
@@ -154,7 +154,7 @@ public class SignVerifyFileContents {
 				.build();
 		
 		Option keyType = Option.builder("keyType")
-				.desc("how are the keys presented: combined or seperate")
+				.desc("how are the keys presented: combined or separate")
 				.hasArg()
 				.required()
 				.argName("mode")
@@ -200,7 +200,6 @@ public class SignVerifyFileContents {
 		Option sig = Option.builder("sig")
 				.desc("path to the detached signature for verification mode")
 				.hasArg()
-				.required()
 				.argName("path")
 				.numberOfArgs(1)
 				.build();

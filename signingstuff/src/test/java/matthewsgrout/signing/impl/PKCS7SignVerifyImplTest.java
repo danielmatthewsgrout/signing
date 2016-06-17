@@ -49,9 +49,9 @@ public class PKCS7SignVerifyImplTest {
 		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
 		
 		byte[] signed = sv.signEncapulsated(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
-		String b64=new String(Base64.encode(signed),StandardCharsets.UTF_8);
+		String b64=new String(Base64.encode(signed),StandardCharsets.US_ASCII);
 		System.out.println(b64);
-		byte[] decode = Base64.decode(b64.getBytes(StandardCharsets.UTF_8));
+		byte[] decode = Base64.decode(b64.getBytes());
 		assertTrue(sv.verifyEncapsulated(decode));
 		assertTrue(sv.verifyEncapsulated(signed));
 	}

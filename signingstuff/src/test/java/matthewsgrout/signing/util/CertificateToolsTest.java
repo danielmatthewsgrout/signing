@@ -12,6 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCSException;
+import org.bouncycastle.util.encoders.Base64;
 import org.junit.Test;
 
 import com.google.common.io.ByteStreams;
@@ -45,8 +46,13 @@ public class CertificateToolsTest {
 		CertificateAndKey cak = CertificateTools.loadCombined(pem);
 		
 		byte[] signed = sv.signEncapulsated(cak.getCertificate(), TEST_TEXT.getBytes(), cak.getKey());
+		String b64 = new String( Base64.encode(signed));
+		assertTrue(sv.verifyEncapsulated(Base64.decode(b64.getBytes())));
 		
-		assertTrue(sv.verifyEncapsulated(signed));
+		byte[] signed2 = sv.signDetached(cak.getCertificate(), TEST_TEXT.getBytes(), cak.getKey());
+		String b642 = new String( Base64.encode(signed2));
+		assertTrue(sv.verifyDetached(Base64.decode(b642.getBytes()),TEST_TEXT.getBytes()));
+		System.out.println(b642);
 	}
 		
 }
