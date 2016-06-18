@@ -20,17 +20,19 @@ public class SignVerifyFileContentsTest {
 				"-certAndKeyFile","src/test/resources/test.pem", "-in","src/test/resources/test.txt","-det"
 		};
 		
-		//sign the test data
-		SignVerifyFileContents.main(args);
-		
-		
 		String[] args2= new String[]{"-mode" ,"verify","-keyType","combined", "-hash","SHA1", 
 				"-certAndKeyFile","src/test/resources/test.pem", "-in","src/test/resources/test.txt","-det",
 				"-sig","src/test/resources/test.sign"
 		};
 	
-		//verify the test signature
+		String[] args3= new String[]{"-mode" ,"sign","-keyType","combined", "-hash","SHA1", 
+				"-certAndKeyFile","src/test/resources/test.pem", "-in","src/test/resources/test.txt",
+				"-det","-url"
+		};
+		
+		SignVerifyFileContents.main(args);
 		SignVerifyFileContents.main(args2);
+		SignVerifyFileContents.main(args3);
 		
 	}
 

@@ -79,8 +79,6 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 	    ASN1EncodableVector signedAttributes = new ASN1EncodableVector();
 	    signedAttributes.add(new Attribute(CMSAttributes.contentType, new DERSet(new ASN1ObjectIdentifier(CMSObjectIdentifiers.data.getId()))));
 	    signedAttributes.add(new Attribute(CMSAttributes.signingTime, new DERSet(new DERUTCTime(Calendar.getInstance().getTime()))));
-
-	    
 	    
 	    AttributeTable signedAttributesTable = new AttributeTable(signedAttributes);
 	    signedAttributesTable.toASN1EncodableVector();
@@ -111,11 +109,19 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 
 		for (SignerInformation signer : (Collection<SignerInformation>) cms.getSignerInfos().getSigners())
 			for (X509CertificateHolder certHolder : (Collection<X509CertificateHolder>) cms.getCertificates()
-					.getMatches(signer.getSID()))
+					.getMatches(signer.getSID())) {
 				if (signer.verify(new JcaSimpleSignerInfoVerifierBuilder().setProvider(PROVIDER)
 						.build(new JcaX509CertificateConverter().setProvider(PROVIDER).getCertificate(certHolder))))
-					return true;
+//				 BcRSASignerInfoVerifierBuilder bcr = new BcRSASignerInfoVerifierBuilder(new DefaultCMSSignatureAlgorithmNameGenerator(), new DefaultSignatureAlgorithmIdentifierFinder(),
+//		                    new DefaultDigestAlgorithmIdentifierFinder(), new BcDigestCalculatorProvider());
+//
+//				if (signer.verify( bcr.build(certHolder) ));//				
+
+				return true;
+			}
 		return false;
 	}
+
+
 
 }

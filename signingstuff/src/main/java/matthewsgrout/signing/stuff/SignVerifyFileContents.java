@@ -2,6 +2,8 @@ package matthewsgrout.signing.stuff;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
@@ -106,13 +108,22 @@ public class SignVerifyFileContents {
 		case "sign":
 			byte[] signed = encap? sv.signEncapulsated(cert, data, privateKey):sv.signDetached(cert, data, privateKey);	
 			String base64 = new String(Base64.encode(signed),StandardCharsets.UTF_8);
-			System.out.println(base64);
+			if (cmd.hasOption("url")){
+				System.out.println(URLEncoder.encode(base64,StandardCharsets.UTF_8.name()));
+				
+			}else {
+				System.out.println(base64);
+			}
 			break;
 		case "verify":
 			
+			byte[] sig=Files.readAllBytes(new File(cmd.getOptionValue("sig")).toPath());
+			
+			if (cmd.hasOption("url")) 
+				sig = URLDecoder.decode(new String(sig),StandardCharsets.UTF_8.name()).getBytes();
+			
 			boolean verify = encap? sv.verifyEncapsulated(Base64.decode(data)): 
-				sv.verifyDetached(Base64.decode(Files.readAllBytes(new File(cmd.getOptionValue("sig")).toPath())),
-						data);
+				sv.verifyDetached(Base64.decode(sig),data);
 			
 			System.out.println(verify?"VERIFIED":"FAILED TO VERIFY");
 			
@@ -131,7 +142,7 @@ public class SignVerifyFileContents {
 	
 	private static void showHelp()  {
 		System.out.println("[-------------------------------------------------------------------]");
-		System.out.println("|              Sign and Verify File Contents v2.0                   |");
+		System.out.println("|              Sign and Verify File Contents v2.1                   |");
 		System.out.println("|-------------------------------------------------------------------|");
 		System.out.println("| https://github.com/danielajgrout/signing/tree/master/signingstuff |");
 		System.out.println("[-------------------------------------------------------------------]");
@@ -203,9 +214,11 @@ public class SignVerifyFileContents {
 				.argName("path")
 				.numberOfArgs(1)
 				.build();
-		
+
+
 		Option encap = new Option( "encap", "encapsulated signature" );
 		Option det = new Option( "det", "detached signature" );
+		Option url = new Option( "url", "encode/decode as URL" );
 
 		
 		options.addOption(mode);
@@ -218,6 +231,7 @@ public class SignVerifyFileContents {
 		options.addOption(encap);
 		options.addOption(det);
 		options.addOption(sig);
+		options.addOption(url);
 
 		return options;
 	}

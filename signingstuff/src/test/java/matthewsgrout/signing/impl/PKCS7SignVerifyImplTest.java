@@ -3,6 +3,8 @@ package matthewsgrout.signing.impl;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -35,11 +37,17 @@ public class PKCS7SignVerifyImplTest {
 		byte[] signed = sv.signDetached(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
 
 		assertTrue(sv.verifyDetached(signed, TEST_TEXT.getBytes()));
-		String b64=new String(Base64.encode(signed),StandardCharsets.UTF_8);
+		String b64=new String(Base64.encode(signed));
+		String url = URLEncoder.encode(b64, StandardCharsets.UTF_8.name());
 		System.out.println(b64);
-		byte[] decode = Base64.decode(b64.getBytes(StandardCharsets.UTF_8));
+		System.out.println(url);
+
+		byte[] decode = Base64.decode(b64.getBytes());
+		byte[] decodeURL = Base64.decode(URLDecoder.decode(url, StandardCharsets.UTF_8.name()).getBytes());
 		assertTrue(sv.verifyDetached(decode, TEST_TEXT.getBytes()));
 		assertTrue(sv.verifyDetached(signed, TEST_TEXT.getBytes()));
+		assertTrue(sv.verifyDetached(decodeURL, TEST_TEXT.getBytes()));
+		
 	}
 
 	@Test
@@ -49,11 +57,19 @@ public class PKCS7SignVerifyImplTest {
 		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
 		
 		byte[] signed = sv.signEncapulsated(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
-		String b64=new String(Base64.encode(signed),StandardCharsets.US_ASCII);
+		String b64=new String(Base64.encode(signed));
+		String url = URLEncoder.encode(b64, StandardCharsets.UTF_8.name());
+
 		System.out.println(b64);
+		System.out.println(url);
+
 		byte[] decode = Base64.decode(b64.getBytes());
+		byte[] decodeURL = Base64.decode(URLDecoder.decode(url, StandardCharsets.UTF_8.name()).getBytes());
+
 		assertTrue(sv.verifyEncapsulated(decode));
 		assertTrue(sv.verifyEncapsulated(signed));
+		assertTrue(sv.verifyDetached(decodeURL, TEST_TEXT.getBytes()));
+
 	}
 
 }
