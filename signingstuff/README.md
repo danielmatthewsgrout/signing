@@ -19,8 +19,8 @@ java -jar signingstuff-1.0-jar-with-dependencies.jar
 
 ---
 
-
-[-------------------------------------------------------------------]<br/>
+<pre>
+[-------------------------------------------------------------------]
 |              Sign and Verify File Contents v2.0                   |
 
 |-------------------------------------------------------------------|
@@ -42,4 +42,4 @@ usage: SignVerifyFileContents
  -sig <path>              path to the detached signature for verification
                           mode
  -url                     encode/decode as URL
-
+</pre>
