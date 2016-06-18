@@ -23,14 +23,13 @@ To run the jar with dependencies: java -jar signingstuff-1.0-jar-with-dependenci
 usage: SignVerifyFileContents
  -certAndKeyFile <path>   path to combined certificate and key file
  -certFile <path>         path to certificate file
- -det                     detached signature
- -encap                   encapsulated signature
+ -det               detached signature
+ -encap             encapsulated signature
  -hash <mode>             Hashing Mode: SHA1 or SHA256 or SHA512
  -in <path>               path to the input data to sign or verify
  -keyFile <path>          path to key file
  -keyType <mode>          how are the keys presented: combined or separate
  -mode <mode>             mode in which to operate: sign or verify
- -sig <path>              path to the detached signature for verification
-                          mode
- -url                     encode/decode as URL
+ -sig <path>              path to the detached signature for verification mode
+ -url               encode/decode as URL
 </pre>
