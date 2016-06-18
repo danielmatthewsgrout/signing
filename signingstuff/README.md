@@ -5,23 +5,17 @@ Sign File Contents
 * Signatures will be PKCS#7 encoded in Base64
 
 ---
-To execute with Maven:
+To execute with Maven: mvn exec:java -Dexec.args="<parameters>"
 
-mvn exec:java -Dexec.args="<parameters>"
+To build a jar with dependencies: mvn clean compile assembly:single
 
-To build a jar with dependencies:
-
-mvn clean compile assembly:single
-
-To run the jar with dependencies:
-
-java -jar signingstuff-1.0-jar-with-dependencies.jar 
+To run the jar with dependencies: java -jar signingstuff-1.0-jar-with-dependencies.jar 
 
 ---
 
 <pre>
 [-------------------------------------------------------------------]
-|              Sign and Verify File Contents v2.0                   |
+|              Sign and Verify File Contents v2.1                   |
 |-------------------------------------------------------------------|
 | https://github.com/danielajgrout/signing/tree/master/signingstuff |
 [-------------------------------------------------------------------]
