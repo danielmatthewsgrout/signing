@@ -22,11 +22,8 @@ java -jar signingstuff-1.0-jar-with-dependencies.jar
 <pre>
 [-------------------------------------------------------------------]
 |              Sign and Verify File Contents v2.0                   |
-
 |-------------------------------------------------------------------|
-
 | https://github.com/danielajgrout/signing/tree/master/signingstuff |
-
 [-------------------------------------------------------------------]
 
 usage: SignVerifyFileContents
