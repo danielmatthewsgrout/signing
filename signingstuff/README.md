@@ -9,7 +9,7 @@ To execute with Maven: mvn exec:java -Dexec.args="<parameters>"
 
 To build a jar with dependencies: mvn clean compile assembly:single
 
-To run the jar with dependencies: java -jar signingstuff-1.0-jar-with-dependencies.jar 
+To run the jar with dependencies: java -jar signingstuff-2.1-jar-with-dependencies.jar 
 
 ---
 
