@@ -15,7 +15,7 @@ To run the jar with dependencies: java -jar signingstuff-2.1-jar-with-dependenci
 
 <pre>
 [-------------------------------------------------------------------]
-|              Sign and Verify File Contents v2.1                   |
+|              Sign and Verify File Contents v2.2                   |
 |-------------------------------------------------------------------|
 | https://github.com/danielajgrout/signing/tree/master/signingstuff |
 [-------------------------------------------------------------------]
@@ -32,4 +32,5 @@ usage: SignVerifyFileContents
  -mode <mode>             mode in which to operate: sign or verify
  -sig <path>              path to the detached signature for verification mode
  -url               encode/decode as URL
+  -v                       display verbose information
 </pre>
