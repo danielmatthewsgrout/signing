@@ -32,5 +32,5 @@ usage: SignVerifyFileContents
  -mode <mode>             mode in which to operate: sign or verify
  -sig <path>              path to the detached signature for verification mode
  -url               encode/decode as URL
-  -v                       display verbose information
+  -v                display verbose information
 </pre>
