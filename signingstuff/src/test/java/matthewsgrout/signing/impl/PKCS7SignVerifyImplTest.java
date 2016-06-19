@@ -14,8 +14,11 @@ import java.security.cert.CertificateException;
 
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.pkcs.PKCSException;
 import org.bouncycastle.util.encoders.Base64;
 import org.junit.Test;
+
+import com.google.common.io.ByteStreams;
 
 import matthewsgrout.signing.SignVerify;
 import matthewsgrout.signing.util.CertificateAndKey;
@@ -23,20 +26,21 @@ import matthewsgrout.signing.util.CertificateTools;
 
 public class PKCS7SignVerifyImplTest {
 
-	private static final  String TEST_TEXT="The quick brown fox jumps over the lazy dog";
 	private static final String SIGN_ALGO="SHA1withRSA";
-	private static final String KEY_ALGO="RSA";
 
 	@Test
-	public void testSignDetached() throws InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException, OperatorCreationException, CMSException, IOException, CertificateException {
-	
-		CertificateAndKey ck = CertificateTools.generateCertAndKey(SIGN_ALGO,KEY_ALGO);
-		
-		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
-		
-		byte[] signed = sv.signDetached(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
+	public void testSignDetached() throws InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException, OperatorCreationException, CMSException, IOException, CertificateException, PKCSException {
+		byte[] testData = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream("test.txt"));
 
-		assertTrue(sv.verifyDetached(signed, TEST_TEXT.getBytes()));
+		byte[] pem = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream("test.pem"));
+
+		CertificateAndKey ck = CertificateTools.loadCombined(pem);
+		
+		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO,true);
+		
+		byte[] signed = sv.signDetached(ck.getCertificate(), testData, ck.getKey());
+
+		assertTrue(sv.verifyDetached(signed, testData));
 		String b64=new String(Base64.encode(signed));
 		String url = URLEncoder.encode(b64, StandardCharsets.UTF_8.name());
 		System.out.println(b64);
@@ -44,19 +48,22 @@ public class PKCS7SignVerifyImplTest {
 
 		byte[] decode = Base64.decode(b64.getBytes());
 		byte[] decodeURL = Base64.decode(URLDecoder.decode(url, StandardCharsets.UTF_8.name()).getBytes());
-		assertTrue(sv.verifyDetached(decode, TEST_TEXT.getBytes()));
-		assertTrue(sv.verifyDetached(signed, TEST_TEXT.getBytes()));
-		assertTrue(sv.verifyDetached(decodeURL, TEST_TEXT.getBytes()));
+		assertTrue(sv.verifyDetached(decode, testData));
+		assertTrue(sv.verifyDetached(signed, testData));
+		assertTrue(sv.verifyDetached(decodeURL, testData));
 		
 	}
 
 	@Test
-	public void testSignEncapulsated() throws OperatorCreationException, CMSException, IOException, CertificateException, InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException {
-	CertificateAndKey ck = CertificateTools.generateCertAndKey(SIGN_ALGO,KEY_ALGO);
+	public void testSignEncapulsated() throws OperatorCreationException, CMSException, IOException, CertificateException, InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException, PKCSException {
+		byte[] pem = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream("test.pem"));
+		byte[] testData = ByteStreams.toByteArray(this.getClass().getClassLoader().getResourceAsStream("test.txt"));
+
+		CertificateAndKey ck = CertificateTools.loadCombined(pem);
+			
+		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO,true);
 		
-		SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO);
-		
-		byte[] signed = sv.signEncapulsated(ck.getCertificate(), TEST_TEXT.getBytes(), ck.getKey());
+		byte[] signed = sv.signEncapulsated(ck.getCertificate(), testData, ck.getKey());
 		String b64=new String(Base64.encode(signed));
 		String url = URLEncoder.encode(b64, StandardCharsets.UTF_8.name());
 
@@ -68,7 +75,7 @@ public class PKCS7SignVerifyImplTest {
 
 		assertTrue(sv.verifyEncapsulated(decode));
 		assertTrue(sv.verifyEncapsulated(signed));
-		assertTrue(sv.verifyDetached(decodeURL, TEST_TEXT.getBytes()));
+		assertTrue(sv.verifyDetached(decodeURL, testData));
 
 	}
 

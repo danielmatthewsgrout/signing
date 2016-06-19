@@ -3,38 +3,22 @@ package matthewsgrout.signing.util;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.security.Security;
-import java.security.SignatureException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
-
-import javax.security.auth.x500.X500Principal;
 
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMException;
 import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCSException;
-import org.bouncycastle.x509.X509V3CertificateGenerator;
 
 /**
  * @author Daniel Matthews-Grout
@@ -42,55 +26,10 @@ import org.bouncycastle.x509.X509V3CertificateGenerator;
  * Utilities for working with certificates and keys
  *
  */
-@SuppressWarnings("deprecation")
 public class CertificateTools {
-
-	
 	static {
 		// load the provider on instantiation of the class
 				Security.addProvider(new BouncyCastleProvider());
-			
-		
-	}
-	private static final Random ran = new SecureRandom();
-	/**
-	 * Generates a certificate and private key
-	 * 
-	 * 
-	 * @param signatureAlgorithm
-	 * @param keyAlgorithm
-	 * @return an instance CertificateAndKey with the right bits
-	 * @throws CertificateEncodingException
-	 * @throws InvalidKeyException
-	 * @throws IllegalStateException
-	 * @throws NoSuchProviderException
-	 * @throws NoSuchAlgorithmException
-	 * @throws SignatureException
-	 */
-	public static CertificateAndKey generateCertAndKey(String signatureAlgorithm, String keyAlgorithm) throws CertificateEncodingException, InvalidKeyException, IllegalStateException, NoSuchProviderException, NoSuchAlgorithmException, SignatureException {
-	
-			
-		Calendar cal = Calendar.getInstance();
-		Date startDate = cal.getTime();                // time from which certificate is valid
-		cal.add(Calendar.YEAR, 10);
-		Date expiryDate = cal.getTime();               // time after which certificate is not valid
-		long l = ran.nextLong();
-		BigInteger serialNumber = BigInteger.valueOf(l<0?l*-1:l);       // serial number for certificate
-		KeyPair keyPair = KeyPairGenerator.getInstance(keyAlgorithm).generateKeyPair();        // EC public/private key pair
-		X509V3CertificateGenerator certGen = new X509V3CertificateGenerator();		
-		X500Principal dnName = new X500Principal("CN=Test CA Certificate");
-		certGen.setSerialNumber(serialNumber);
-		certGen.setIssuerDN(dnName);
-		certGen.setNotBefore(startDate);
-		certGen.setNotAfter(expiryDate);
-		certGen.setSubjectDN(dnName);                       // note: same as issuer
-		certGen.setPublicKey(keyPair.getPublic());
-		certGen.setSignatureAlgorithm(signatureAlgorithm);
-		
-		X509Certificate cert = certGen.generate(keyPair.getPrivate(), BouncyCastleProvider.PROVIDER_NAME);
-		 
-		return new CertificateAndKey(cert, keyPair.getPrivate());
-		
 	}
 	
 	/**
@@ -119,7 +58,6 @@ public class CertificateTools {
 		 }
 	}
 	
-	
 	/**
 	 * Loads a private key from a file
 	 * 
@@ -129,16 +67,13 @@ public class CertificateTools {
 	 * @throws NoSuchAlgorithmException
 	 * @throws InvalidKeySpecException
 	 */
-	public static PrivateKey loadRSAPrivateKey(byte[] keyBytes) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {		
-		
+	public static AsymmetricKeyParameter loadRSAPrivateKey(byte[] keyBytes) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {		
 		 try ( PEMParser pemParser =  new PEMParser(new InputStreamReader(new ByteArrayInputStream(keyBytes)))) {
 			 Object o = pemParser.readObject();
-		        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
-
 			  if (o instanceof PEMKeyPair) {
 		            try {
-		                KeyPair kp =  converter.getKeyPair((PEMKeyPair) o);
-		               return kp.getPrivate();
+		                PEMKeyPair kp = (PEMKeyPair)o;
+		               return PrivateKeyFactory.createKey(kp.getPrivateKeyInfo());
 		            } catch (PEMException e) {
 		                throw new RuntimeException("Failed to construct public/private key pair", e);
 		            }
@@ -159,11 +94,11 @@ public class CertificateTools {
 	 */
 	public static CertificateAndKey loadCombined(byte[] pemBytes) throws PKCSException, OperatorCreationException, IOException {
 	
-		PrivateKey pk=null;
+		AsymmetricKeyParameter pk=null;
 		Certificate cert=null;
 		 try ( PEMParser pemParser =  new PEMParser(new InputStreamReader(new ByteArrayInputStream(pemBytes)))) {
 			        
-	        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
+	     //   JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
 	        JcaX509CertificateConverter certconv = new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME);
 	        
 	        for (Object o = pemParser.readObject(); o !=null; o=pemParser.readObject() ) {
@@ -173,13 +108,13 @@ public class CertificateTools {
 	    
 	        if (o instanceof PEMKeyPair) {
 	            try {
-	                KeyPair kp =  converter.getKeyPair((PEMKeyPair) o);
-	                pk=kp.getPrivate();
+	            	PEMKeyPair kp = (PEMKeyPair)o;
+	                pk=PrivateKeyFactory.createKey(kp.getPrivateKeyInfo());
 	            } catch (PEMException e) {
 	                throw new RuntimeException("Failed to construct public/private key pair", e);
 	            }
-	        } else if(o instanceof RSAPrivateCrtKey){
-	                 pk = (PrivateKey) o;
+	       // } else if(o instanceof RSAPrivateCrtKey){
+	          //       pk = (PrivateKey) o;
 	           } else if (o instanceof X509CertificateHolder) {
 	                try {   
 	                  cert= certconv.getCertificate((X509CertificateHolder) o);  

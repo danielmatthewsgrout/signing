@@ -29,10 +29,16 @@ public class SignVerifyFileContentsTest {
 				"-certAndKeyFile","src/test/resources/test.pem", "-in","src/test/resources/test.txt",
 				"-det","-url"
 		};
+	
+		String[] args4= new String[]{"-mode" ,"sign","-keyType","combined", "-hash","SHA1", 
+				"-certAndKeyFile","src/test/resources/test.pem", "-in","src/test/resources/test.txt",
+				"-det","-url","-v"
+		};
 		
 		SignVerifyFileContents.main(args);
 		SignVerifyFileContents.main(args2);
 		SignVerifyFileContents.main(args3);
+		SignVerifyFileContents.main(args4);
 		
 	}
 

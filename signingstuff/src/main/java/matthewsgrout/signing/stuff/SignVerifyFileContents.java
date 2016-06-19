@@ -7,7 +7,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
@@ -17,9 +16,12 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Option.Builder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.log4j.Logger;
 import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.pkcs.PKCSException;
 import org.bouncycastle.util.encoders.Base64;
@@ -35,15 +37,48 @@ public class SignVerifyFileContents {
 		SHA1("SHA1withRSA"),SHA256("SHA256withRSA"),SHA512("SHA512withRSA");
 		
 		String internal;
-		
 		SignAlgo(String internal) {
 			this.internal=internal;
 		}
 	}
 	
+	private enum Parameter {
+		certAndKeyFile("path to combined certificate and key file",new String[]{"path"},false),
+		certFile("path to certificate file",new String[]{"path"},false),
+		det("detached signature",false),
+		encap("encapsulated signature",false),
+		hash("Hashing Mode: SHA1 or SHA256 or SHA512",new String[]{"mode"},true),
+		in("path to the input data to sign or verify",new String[]{"path"},true),
+		keyFile("path to key file",new String[]{"path"},false),
+		keyType("how are the keys presented: combined or separate",new String[]{"type"},true),
+		mode("mode in which to operate: sign or verify",new String[]{"mode"},true),
+		sig("path to the detached signature for verification",new String[]{"path"},false),
+		url("encode/decode signature as URL data",false),
+		v("display verbose information",false);
+		 
+		final String description;
+		final String[] args;
+		final boolean required;
+		Parameter(String description,String[] args, boolean required) {
+			this.description=description;
+			this.args=args;
+			this.required=required;
+		}
+		Parameter(String description, boolean required) {
+			this.description=description;
+			this.args=null;
+			this.required=required;
+		}
+	}
+
+	
+	private enum Mode {sign,verify};
+	private enum KeyType {combined,separate};
+	private static final Logger logger = Logger.getLogger(SignVerifyFileContents.class);
+
 	public static void main(String[] args) throws OperatorCreationException, CMSException, IOException, PKCSException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException  {
-		CommandLineParser parser = new DefaultParser();
-		CommandLine cmd ;
+		final CommandLineParser parser = new DefaultParser();
+		final CommandLine cmd ;
 		try {
 			cmd= parser.parse( getOptions(), args);
 		} catch (ParseException e) {
@@ -51,90 +86,95 @@ public class SignVerifyFileContents {
 			return;
 		}		
 		
-		String algo = SignAlgo.valueOf(cmd.getOptionValue("hash")).internal;
+		final String algo = SignAlgo.valueOf(cmd.getOptionValue(Parameter.hash.name())).internal;
+		final String keyType = cmd.getOptionValue(Parameter.keyType.name());
+		
+		final boolean verbose = cmd.hasOption(Parameter.v.name());
+		
+		if (verbose)
+			for (String s:cmd.getArgs()) logger.info("using option: "+s);
 		
 		if (algo==null) {
 			showHelp("please select a valid hash");
 			return;
 		}
 		
-		String keyType = cmd.getOptionValue("keyType");
-	
+		final SignVerify sv = new PKCS7SignVerifyImpl(algo,verbose);
 		
-		Certificate cert;
-		PrivateKey privateKey;
+		final Certificate cert;
+		final AsymmetricKeyParameter privateKey;
 	
-		switch (keyType.toLowerCase()) {
-		case "combined":
-			if (!cmd.hasOption("certAndKeyFile")) {
+		switch (KeyType.valueOf(keyType.toLowerCase())) {
+		case combined:
+			if (!cmd.hasOption(Parameter.certAndKeyFile.name())) {
 				showHelp("please specify path to certificate and key file");
 				return;
 			}
 			CertificateAndKey cak = CertificateTools.loadCombined(
-					Files.readAllBytes(new File(cmd.getOptionValue("certAndKeyFile")).toPath()));
+					Files.readAllBytes(new File(cmd.getOptionValue(Parameter.certAndKeyFile.name())).toPath()));
 			
 			cert=cak.getCertificate();
 			privateKey=cak.getKey();
 			break;
-		case "separate":
-			if (!(cmd.hasOption("certFile") && cmd.hasOption("keyFile") )) {
+		case separate:
+			if (!(cmd.hasOption("certFile") && cmd.hasOption(Parameter.keyFile.name()) )) {
 				showHelp("please specify path to certificate and key files");
 				return;
 			}
 			
 			cert  = CertificateTools.loadX509Certificate(
-					Files.readAllBytes(new File( cmd.getOptionValue("certFile")).toPath()));
+					Files.readAllBytes(new File( cmd.getOptionValue(Parameter.certFile.name())).toPath()));
 			privateKey = CertificateTools.loadRSAPrivateKey(
-					Files.readAllBytes(new File(cmd.getOptionValue("keyFile")).toPath()));
+					Files.readAllBytes(new File(cmd.getOptionValue(Parameter.keyFile.name())).toPath()));
 			break;
 		default:
 			showHelp("please use a valid value for keyType");
 			return;
 		}
 		
-		if (!(cmd.hasOption("encap")||cmd.hasOption("det"))) {
+		if (!(cmd.hasOption(Parameter.encap.name())||cmd.hasOption(Parameter.det.name()))) {
 			showHelp("please select encapsulated or detached");
 			return;
 		}
 		
-		boolean encap=cmd.hasOption("encap");
+		final boolean encap=cmd.hasOption(Parameter.encap.name());
 		
-		byte[] data = Files.readAllBytes(new File(cmd.getOptionValue("in")).toPath());
+		final byte[] data = Files.readAllBytes(new File(cmd.getOptionValue(Parameter.in.name())).toPath());
 		
-		SignVerify sv = new PKCS7SignVerifyImpl(algo);
+	
+		final String mode = cmd.getOptionValue(Parameter.mode.name());
 		
-		String mode = cmd.getOptionValue("mode");
-		switch (mode.toLowerCase()) {
-		case "sign":
+		switch (Mode.valueOf(mode.toLowerCase())) {
+		case sign:
 			byte[] signed = encap? sv.signEncapulsated(cert, data, privateKey):sv.signDetached(cert, data, privateKey);	
 			String base64 = new String(Base64.encode(signed),StandardCharsets.UTF_8);
-			if (cmd.hasOption("url")){
+			if (cmd.hasOption(Parameter.url.name())){
 				System.out.println(URLEncoder.encode(base64,StandardCharsets.UTF_8.name()));
 				
 			}else {
 				System.out.println(base64);
 			}
 			break;
-		case "verify":
+		case verify:
+			if (encap) {
+				boolean verify =  sv.verifyEncapsulated(Base64.decode(data));
+				System.out.println(verify?"VERIFIED":"FAILED TO VERIFY");
+			} else {
+				byte[] sig=Files.readAllBytes(new File(cmd.getOptionValue(Parameter.sig.name())).toPath());
+				if (cmd.hasOption(Parameter.url.name())) 
+					sig = URLDecoder.decode(new String(sig),StandardCharsets.UTF_8.name()).getBytes();
 			
-			byte[] sig=Files.readAllBytes(new File(cmd.getOptionValue("sig")).toPath());
-			
-			if (cmd.hasOption("url")) 
-				sig = URLDecoder.decode(new String(sig),StandardCharsets.UTF_8.name()).getBytes();
-			
-			boolean verify = encap? sv.verifyEncapsulated(Base64.decode(data)): 
-				sv.verifyDetached(Base64.decode(sig),data);
-			
-			System.out.println(verify?"VERIFIED":"FAILED TO VERIFY");
-			
+				boolean verify = sv.verifyDetached(Base64.decode(sig),data);
+				System.out.println(verify?"VERIFIED":"FAILED TO VERIFY");
+			}
 			break;
 		default:
 			showHelp("please select a valid mode: sign or verify");
 		}
 		
 	}
-	
 	private static void showHelp(String msg) {
+		
 		System.out.println("Error: " + msg);
 		System.out.println();
 		showHelp();
@@ -142,7 +182,7 @@ public class SignVerifyFileContents {
 	
 	private static void showHelp()  {
 		System.out.println("[-------------------------------------------------------------------]");
-		System.out.println("|              Sign and Verify File Contents v2.1                   |");
+		System.out.println("|              Sign and Verify File Contents v2.2                   |");
 		System.out.println("|-------------------------------------------------------------------|");
 		System.out.println("| https://github.com/danielajgrout/signing/tree/master/signingstuff |");
 		System.out.println("[-------------------------------------------------------------------]");
@@ -154,86 +194,22 @@ public class SignVerifyFileContents {
 	
 	
 	private static  Options getOptions() {
-		Options options = new Options();
+		final Options options = new Options();
 
-		Option mode = Option.builder("mode")
-				.desc("mode in which to operate: sign or verify")
-				.hasArg()
-				.required()
-				.argName("mode")
-				.numberOfArgs(1)
-				.build();
+		for (Parameter p:Parameter.values()) {
+			if (p.args==null||p.args.length==0){
+				options.addOption(Option.builder(p.name())
+					.desc(p.description).build());
+			} else {
+				Builder b = Option.builder(p.name())
+						.desc(p.description);
+				b=b.numberOfArgs(p.args.length);
+				for (String s :p.args) b=b.argName(s);
+				if (p.required) b=b.required();
+				options.addOption(b.build());
+			}
+		}
 		
-		Option keyType = Option.builder("keyType")
-				.desc("how are the keys presented: combined or separate")
-				.hasArg()
-				.required()
-				.argName("mode")
-				.numberOfArgs(1)
-				.build();
-		
-		Option certAndKey = Option.builder("certAndKeyFile")
-				.desc("path to combined certificate and key file")
-				.hasArg()
-				.argName("path")
-				.numberOfArgs(1)
-				.build();
-
-		Option cert = Option.builder("certFile")
-				.desc("path to certificate file")
-				.hasArg()
-				.argName("path")
-				.numberOfArgs(1)
-				.build();
-
-		Option key = Option.builder("keyFile")
-				.desc("path to key file")
-				.hasArg()
-				.argName("path")
-				.numberOfArgs(1)
-				.build();
-
-		Option hashMode = Option.builder("hash")
-				.desc("Hashing Mode: SHA1 or SHA256 or SHA512")
-				.hasArg()
-				.required()
-				.argName("mode")
-				.numberOfArgs(1)
-				.build();
-		Option data = Option.builder("in")
-				.desc("path to the input data to sign or verify")
-				.hasArg()
-				.required()
-				.argName("path")
-				.numberOfArgs(1)
-				.build();
-		
-		Option sig = Option.builder("sig")
-				.desc("path to the detached signature for verification mode")
-				.hasArg()
-				.argName("path")
-				.numberOfArgs(1)
-				.build();
-
-
-		Option encap = new Option( "encap", "encapsulated signature" );
-		Option det = new Option( "det", "detached signature" );
-		Option url = new Option( "url", "encode/decode as URL" );
-
-		
-		options.addOption(mode);
-		options.addOption(keyType);
-		options.addOption(certAndKey);
-		options.addOption(key);
-		options.addOption(cert);
-		options.addOption(hashMode);
-		options.addOption(data);
-		options.addOption(encap);
-		options.addOption(det);
-		options.addOption(sig);
-		options.addOption(url);
-
 		return options;
 	}
-
 }

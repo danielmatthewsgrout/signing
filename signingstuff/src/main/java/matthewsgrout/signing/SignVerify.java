@@ -1,12 +1,12 @@
 package matthewsgrout.signing;
 
 import java.io.IOException;
-import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 
 import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.operator.OperatorCreationException;
 
 /**
@@ -27,7 +27,7 @@ public interface SignVerify {
 	 * @throws CMSException
 	 * @throws IOException
 	 */
-	public byte[] signDetached(Certificate publicCertificate, byte[] data, PrivateKey privateKey)
+	public byte[] signDetached(Certificate publicCertificate, byte[] data, AsymmetricKeyParameter privateKey)
 			throws OperatorCreationException, CertificateEncodingException, CMSException, IOException;
 
 	/**
@@ -41,7 +41,7 @@ public interface SignVerify {
 	 * @throws CMSException
 	 * @throws IOException
 	 */
-	public byte[] signEncapulsated(Certificate publicCertificate, byte[] data, PrivateKey privateKey)
+	public byte[] signEncapulsated(Certificate publicCertificate, byte[] data, AsymmetricKeyParameter privateKey)
 			throws OperatorCreationException, CertificateEncodingException, CMSException, IOException;
 
 	/**
