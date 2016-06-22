@@ -40,8 +40,8 @@ import matthewsgrout.signing.util.CertificateTools;
  */
 public class SignVerifyFileContents {
 
-	private enum Mode {sign,verify};
-	private enum KeyType {combined,separate};
+	private enum Mode {sign,verify,notSpecified};
+	private enum KeyType {combined,separate,notSpecified};
 	private static final Logger logger = Logger.getLogger(SignVerifyFileContents.class);
 	private enum Parameter {
 		certAndKeyFile("path to combined certificate and key file",new String[]{"path"},false),
@@ -95,7 +95,6 @@ public class SignVerifyFileContents {
 		
 		byte[] data = Files.readAllBytes(new File(cmd.getOptionValue(Parameter.in.name())).toPath());
 		
-		final String mode = cmd.getOptionValue(Parameter.mode.name());
 		final SignAlgorithm algo = SignAlgorithm.valueOf(cmd.getOptionValue(Parameter.hash.name()));
 		final boolean verbose = cmd.hasOption(Parameter.v.name());
 		
@@ -112,10 +111,20 @@ public class SignVerifyFileContents {
 			showHelp("please select encapsulated or detached");
 			return;
 		}
+		KeyType keyType=KeyType.notSpecified;
+		
+		if (cmd.hasOption(Parameter.keyType.name())) {
+			try {
+				keyType=KeyType.valueOf(cmd.getOptionValue(Parameter.keyType.name()).toLowerCase());
+			} catch (IllegalArgumentException e) {
+				showHelp("please select a key type value of combined or separate");
+				return;
+			}
+		}
 		
 		final boolean encap=cmd.hasOption(Parameter.encap.name());
-		
-		switch (Mode.valueOf(mode.toLowerCase())) {
+		Mode mode=Mode.valueOf( cmd.getOptionValue(Parameter.mode.name()).toLowerCase());
+		switch (mode) {
 		case sign:
 			
 			if (!cmd.hasOption(Parameter.keyType.name())) {
@@ -123,11 +132,10 @@ public class SignVerifyFileContents {
 				return;
 			}
 			
-			final String keyType = cmd.getOptionValue(Parameter.keyType.name());
 			final Certificate cert;
 			final AsymmetricKeyParameter privateKey;
 		
-			switch (KeyType.valueOf(keyType.toLowerCase())) {
+			switch (keyType) {
 			case combined:
 				if (!cmd.hasOption(Parameter.certAndKeyFile.name())) {
 					showHelp("please specify path to certificate and key file");
@@ -157,12 +165,13 @@ public class SignVerifyFileContents {
 			
 			byte[] signed = encap? sv.signEncapulsated(cert, data, privateKey):sv.signDetached(cert, data, privateKey);	
 			String base64 = new String(Base64.encode(signed),StandardCharsets.UTF_8);
+		
 			if (cmd.hasOption(Parameter.url.name())){
 				System.out.println(URLEncoder.encode(base64,StandardCharsets.UTF_8.name()));
-				
 			}else {
 				System.out.println(base64);
 			}
+			
 			break;
 		case verify:
 			boolean verify ;
@@ -173,7 +182,8 @@ public class SignVerifyFileContents {
 			
 			if (hasCert) {
 				//has certificate so load it based on the options
-				switch (KeyType.valueOf(cmd.getOptionValue(Parameter.keyType.name()).toLowerCase())) {
+			
+				switch (keyType) {
 				case combined:
 					if (!cmd.hasOption(Parameter.certAndKeyFile.name())) {
 						showHelp("please specify path to certificate");
@@ -235,8 +245,7 @@ public class SignVerifyFileContents {
 		System.out.println("[-------------------------------------------------------------------]");
 		System.out.println();
 		
-		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp("SignVerifyFileContents" , getOptions());
+		new HelpFormatter().printHelp("SignVerifyFileContents" , getOptions());
 	}
 	
 	private static  Options getOptions() {
