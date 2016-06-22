@@ -33,11 +33,11 @@ import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import org.bouncycastle.util.encoders.Base64;
 
+import matthewsgrout.signing.SignAlgorithm;
 import matthewsgrout.signing.SignVerify;
 
 /**
  * @author Daniel Matthews-Grout
- * 
  * 
  * PKCS7 implementation of the SignVerify interface
  *
@@ -47,8 +47,11 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 	private static final Logger logger = Logger.getLogger(PKCS7SignVerifyImpl.class);
 	private final String signatureAlgorithm;
 	private final boolean verbose;
-	public PKCS7SignVerifyImpl(String signatureAlgorithm,boolean verbose) {
-		this.signatureAlgorithm=signatureAlgorithm;
+	private final BcRSASignerInfoVerifierBuilder bcr = new BcRSASignerInfoVerifierBuilder(new DefaultCMSSignatureAlgorithmNameGenerator(), new DefaultSignatureAlgorithmIdentifierFinder(),
+            new DefaultDigestAlgorithmIdentifierFinder(), new BcDigestCalculatorProvider());
+	
+	public PKCS7SignVerifyImpl(SignAlgorithm signatureAlgorithm,boolean verbose) {
+		this.signatureAlgorithm=signatureAlgorithm.internal;
 		this.verbose=verbose;
 		// load the provider on instantiation of the class
 		Security.addProvider(new BouncyCastleProvider());
@@ -71,14 +74,25 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 	public boolean verifyEncapsulated(byte[] signature) throws OperatorCreationException, CertificateException, CMSException {
 		return this.verifiy(signature, null);   
 	}
+	
+	@Override
+	public boolean verifyDetached(byte[] signature, byte[] body, Certificate certificate)
+			throws OperatorCreationException, CertificateException, CMSException, IOException {
+		  return this.verifiy(signature, body, certificate);   
+	}
 
+	@Override
+	public boolean verifyEncapsulated(byte[] signature, Certificate certificate)
+			throws OperatorCreationException, CertificateException, CMSException, IOException {
+		  return this.verifiy(signature, null, certificate);   
+	}
+	
 	private byte[] sign(boolean encapulate, byte[] data, Certificate cert, AsymmetricKeyParameter key)
 			throws OperatorCreationException, CertificateEncodingException, CMSException, IOException {
 	    CMSSignedDataGenerator generator = new CMSSignedDataGenerator();
 	    
 	    AlgorithmIdentifier sigAlgId = new DefaultSignatureAlgorithmIdentifierFinder().find(signatureAlgorithm);
 	    AlgorithmIdentifier digAlgId = new DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId);
-
 	    X509CertificateHolder ch=new X509CertificateHolder(cert.getEncoded());
 	  
 	    generator.addSignerInfoGenerator(new SignerInfoGeneratorBuilder(
@@ -105,42 +119,71 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 		CMSSignedData cms = originalData == null ? new CMSSignedData(signedData) : new CMSSignedData(new CMSProcessableByteArray(originalData), signedData);
 		
 		if (verbose) outputCMSData(cms);
-		
+	
 		for (SignerInformation signer : (Collection<SignerInformation>) cms.getSignerInfos().getSigners())
 			for (X509CertificateHolder certHolder : (Collection<X509CertificateHolder>) cms.getCertificates().getMatches(signer.getSID())) {
-				 BcRSASignerInfoVerifierBuilder bcr = new BcRSASignerInfoVerifierBuilder(new DefaultCMSSignatureAlgorithmNameGenerator(), new DefaultSignatureAlgorithmIdentifierFinder(),
-		                    new DefaultDigestAlgorithmIdentifierFinder(), new BcDigestCalculatorProvider());
-				 
-				 if (verbose) this.outputCertificateInformation(certHolder);
-				 
+					 
+				 if (verbose) {
+					 outputSignerInfo(signer);
+					 this.outputCertificateInformation(certHolder);
+				 }				 
 				 if (signer.verify(bcr.build(certHolder))) return true;				
 			}
 		
 		//no relevant information found
 		return false;
 	}
+	
+	private boolean verifiy(byte[] signedData, byte[] originalData, Certificate certificate) throws OperatorCreationException, CertificateException, CMSException, IOException{
+		// only include the data if it's passed - this is a private method so it
+		// being null is indicative of it being encapsulated in the signature
+		CMSSignedData cms = originalData == null ? new CMSSignedData(signedData) : new CMSSignedData(new CMSProcessableByteArray(originalData), signedData);
 
+	    X509CertificateHolder ch=new X509CertificateHolder(certificate.getEncoded());
+	    
+	    if (verbose) {
+	    	outputCMSData(cms);
+	    	outputCertificateInformation(ch);
+	    }
+
+	    for (SignerInformation signer : (Collection<SignerInformation>) cms.getSignerInfos().getSigners()) {
+	    	if (verbose) outputSignerInfo(signer);
+	    	if (signer.verify(bcr.build(ch))) return true;
+	    }
+		return false;
+	}
+	private void outputSignerInfo(SignerInformation signer) {
+		AlgorithmNameFinder anf = new DefaultAlgorithmNameFinder();
+		StringBuilder b=new StringBuilder();
+		
+		b.append("Digest Algo: ");
+		b.append(anf.getAlgorithmName(signer.getDigestAlgorithmID()));
+		b.append("\n");
+		b.append("Signer ID Serial: ");
+		b.append(signer.getSID().getSerialNumber());
+		b.append("\n");
+		b.append("Signer ID Issuer: ");
+		b.append(signer.getSID().getIssuer().toString());
+		b.append("\n");
+		logger.info("Signer information: \n" + b);
+	}
 	private void outputCMSData(CMSSignedData csd) {
 		AlgorithmNameFinder anf = new DefaultAlgorithmNameFinder();
 		StringBuilder b=new StringBuilder();
 		b.append("Version Number: ");
 		b.append(csd.getVersion());
 		b.append("\n");
-
+		
 		for (AlgorithmIdentifier aid: csd.getDigestAlgorithmIDs()) {
 			b.append("Algorithm: ");
 			b.append(aid.getAlgorithm());
 			b.append("\n");
 		}
 		for (SignerInformation si : csd.getSignerInfos().getSigners()) {
-			b.append("Digest Algo: ");
-			b.append(si.getDigestAlgorithmID().getAlgorithm().getId());
 			b.append("\n");
-			b.append("Encryption Algo: ");
-			b.append(si.getEncryptionAlgOID());
 			b.append("\n");
 			b.append("Content Type: ");
-			b.append(si.getContentType());
+			b.append(anf.getAlgorithmName(si.getContentType()));
 			b.append("\n");
 			if (si.getSignedAttributes()!=null)
 			for (Attribute a : si.getSignedAttributes().toASN1Structure().getAttributes()) {
@@ -148,7 +191,6 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 				b.append(a.getAttrType().getId());
 				b.append("\n");
 				for(ASN1Encodable e: a.getAttributeValues()) {
-					
 					if (e instanceof CMSAlgorithmProtection) {
 						b.append("Algorithm: ");
 						CMSAlgorithmProtection cap = (CMSAlgorithmProtection)e;
@@ -180,7 +222,6 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 		}
 		
 		logger.info("Signature information: \n" + b);
-		
 	}
 	
 	private void outputCertificateInformation(X509CertificateHolder cert) {
@@ -217,8 +258,6 @@ public class PKCS7SignVerifyImpl implements SignVerify {
 		b.append(cert.getSubjectPublicKeyInfo().getPublicKeyData());
 		b.append("\n");
 		
-		
 		logger.info("Certificate information: \n" + b);
 	}
-
 }

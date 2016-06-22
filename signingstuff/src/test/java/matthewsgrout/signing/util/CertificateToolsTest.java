@@ -17,13 +17,13 @@ import org.junit.Test;
 
 import com.google.common.io.ByteStreams;
 
+import matthewsgrout.signing.SignAlgorithm;
 import matthewsgrout.signing.SignVerify;
 import matthewsgrout.signing.impl.PKCS7SignVerifyImpl;
 
 public class CertificateToolsTest {
 	private static final  String TEST_TEXT="The quick brown fox jumps over the lazy dog";
-	private static final String SIGN_ALGO="SHA1withRSA";
-	private final SignVerify sv = new PKCS7SignVerifyImpl(SIGN_ALGO,true);
+	private final SignVerify sv = new PKCS7SignVerifyImpl(SignAlgorithm.SHA1,true);
 
 	//http://fm4dd.com/openssl/certexamples.htm
 	

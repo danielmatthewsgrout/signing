@@ -35,11 +35,20 @@ public class SignVerifyFileContentsTest {
 				"-det","-url","-v"
 		};
 		
+		String[] args5= new String[]{"-mode" ,"verify", "-hash","SHA1", "-in","src/test/resources/test.txt","-det",
+				"-sig","src/test/resources/test.sign"};
+
+		
+		String[] args6= new String[]{"-mode" ,"verify","-keyType","separate", "-hash","SHA1", 
+				"-certFile","src/test/resources/test.cert", "-in","src/test/resources/test.txt","-det",
+				"-sig","src/test/resources/test.sign"};
+		
 		SignVerifyFileContents.main(args);
 		SignVerifyFileContents.main(args2);
 		SignVerifyFileContents.main(args3);
 		SignVerifyFileContents.main(args4);
-		
+		SignVerifyFileContents.main(args5);
+		SignVerifyFileContents.main(args6);
 	}
 
 }

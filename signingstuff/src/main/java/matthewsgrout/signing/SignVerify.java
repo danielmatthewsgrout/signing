@@ -10,7 +10,7 @@ import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.operator.OperatorCreationException;
 
 /**
- * @author Daniel Matthew-Grout
+ * @author Daniel Matthews-Grout
  *
  */
 public interface SignVerify {
@@ -54,7 +54,7 @@ public interface SignVerify {
 	 * @throws CertificateException
 	 * @throws CMSException
 	 */
-	public boolean verifyDetached(byte[] signature, byte[] body) throws OperatorCreationException, CertificateException, CMSException ;
+	public boolean verifyDetached(byte[] signature, byte[] body) throws OperatorCreationException, CertificateException, CMSException;
 
 	/**
 	 * Verifies a signature against the encapsulated data
@@ -65,6 +65,32 @@ public interface SignVerify {
 	 * @throws CertificateException
 	 * @throws CMSException
 	 */
-	public boolean verifyEncapsulated(byte[] signature) throws OperatorCreationException, CertificateException, CMSException ;
+	public boolean verifyEncapsulated(byte[] signature) throws OperatorCreationException, CertificateException, CMSException;
+	/**
+	 * Verifies a signature against original data and provided signature
+	 * 
+	 * @param signature byte array of signature
+	 * @param body byte array of original body
+	 * @param certificate the <p>certificate to be used to verify against,
+	 * 		 will ignore certificates in the signature</p>
+	 * @return true/false was signature verified
+	 * @throws OperatorCreationException
+	 * @throws CertificateException
+	 * @throws CMSException
+	 */
+	public boolean verifyDetached(byte[] signature, byte[] body, Certificate certificate) throws OperatorCreationException, CertificateException, CMSException, IOException;
+
+	/**
+	 * Verifies a signature against the encapsulated data and provided signature
+	 * 
+	 * @param signature byte array of signature
+	 * @param certificate the <p>certificate to be used to verify against,
+	 * 		 will ignore certificates in the signature</p>
+	 * @return true/false was signature verified
+	 * @throws OperatorCreationException
+	 * @throws CertificateException
+	 * @throws CMSException
+	 */
+	public boolean verifyEncapsulated(byte[] signature, Certificate certificate) throws OperatorCreationException, CertificateException, CMSException, IOException;
 
 }
