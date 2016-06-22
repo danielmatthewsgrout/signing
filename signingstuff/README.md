@@ -43,7 +43,7 @@ java -jar signingstuff-2.3-jar-with-dependencies.jar -mode verify -keyType separ
 
 <pre>
 [-------------------------------------------------------------------]
-|              Sign and Verify File Contents v2.2                   |
+|              Sign and Verify File Contents v2.3                   |
 |-------------------------------------------------------------------|
 | https://github.com/danielajgrout/signing/tree/master/signingstuff |
 [-------------------------------------------------------------------]
