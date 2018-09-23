@@ -40,7 +40,7 @@ import matthewsgrout.signing.util.CertificateTools;
  */
 public class SignVerifyFileContents {
 
-	private enum Mode {sign,verify,notSpecified};
+	private enum Mode {sign,verify,xmlSign,xmlVerify,notSpecified};
 	private enum KeyType {combined,separate,notSpecified};
 	private static final Logger logger = Logger.getLogger(SignVerifyFileContents.class);
 	private enum Parameter {
@@ -52,7 +52,7 @@ public class SignVerifyFileContents {
 		in("path to the input data to sign or verify",new String[]{"path"},true),
 		keyFile("path to key file",new String[]{"path"},false),
 		keyType("how are the keys presented: combined or separate",new String[]{"type"},false),
-		mode("mode in which to operate: sign or verify",new String[]{"mode"},true),
+		mode("mode in which to operate: sign or verify - xmlSign or xmlVerify (ISO20022",new String[]{"mode"},true),
 		sig("path to the detached signature for verification",new String[]{"path"},false),
 		url("encode/decode signature as URL data",false),
 		v("display verbose information",false);
@@ -239,9 +239,9 @@ public class SignVerifyFileContents {
 	
 	private static void showHelp()  {
 		System.out.println("[-------------------------------------------------------------------]");
-		System.out.println("|              Sign and Verify File Contents v2.3                   |");
+		System.out.println("|              Sign and Verify File Contents v3.0                   |");
 		System.out.println("|-------------------------------------------------------------------|");
-		System.out.println("| https://github.com/danielajgrout/signing/tree/master/signingstuff |");
+		System.out.println("| https://gitlab.com/danielmg/signing/                              |");
 		System.out.println("[-------------------------------------------------------------------]");
 		System.out.println();
 		
