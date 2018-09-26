@@ -1,0 +1,30 @@
+{
+    "run": {
+        "default": "",
+        "items": [
+            {
+                "name": "signingstuff",
+                "projectName": "signingstuff",
+                "workingDirectory": "/home/daniel/workspace/signing/signingstuff",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    },
+    "debug": {
+        "default": "",
+        "items": [
+            {
+                "name": "signingstuff",
+                "projectName": "signingstuff",
+                "workingDirectory": "/home/daniel/workspace/signing/signingstuff",
+                "args": [],
+                "vmargs": [],
+                "env": {},
+                "preLaunchTask": ""
+            }
+        ]
+    }
+}

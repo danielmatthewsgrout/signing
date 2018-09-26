@@ -1,15 +1,13 @@
 package matthewsgrout.signing.stuff;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
+import java.nio.file.StandardOpenOption;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.spec.InvalidKeySpecException;
+import java.security.cert.X509Certificate;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -20,14 +18,14 @@ import org.apache.commons.cli.Option.Builder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
-import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.pkcs.PKCSException;
+
 import org.bouncycastle.util.encoders.Base64;
 
 import matthewsgrout.signing.SignAlgorithm;
 import matthewsgrout.signing.SignVerify;
+import matthewsgrout.signing.XMLSignVerify;
+import matthewsgrout.signing.impl.ApacheXMLSignVerify;
 import matthewsgrout.signing.impl.PKCS7SignVerifyImpl;
 import matthewsgrout.signing.util.CertificateAndKey;
 import matthewsgrout.signing.util.CertificateTools;
@@ -46,8 +44,8 @@ public class SignVerifyFileContents {
 	private enum Parameter {
 		certAndKeyFile("path to combined certificate and key file",new String[]{"path"},false),
 		certFile("path to certificate file",new String[]{"path"},false),
-		det("detached signature",false),
-		encap("encapsulated signature",false),
+		det("detached signature (not for XML)",false),
+		encap("encapsulated signature (not for XML)",false),
 		hash("Hashing Mode: SHA1 or SHA256, SHA384, or SHA512",new String[]{"mode"},true),
 		in("path to the input data to sign or verify",new String[]{"path"},true),
 		keyFile("path to key file",new String[]{"path"},false),
@@ -74,15 +72,9 @@ public class SignVerifyFileContents {
 
 	/**
 	 * @param args CLI arguments
-	 * @throws OperatorCreationException
-	 * @throws CMSException
-	 * @throws IOException
-	 * @throws PKCSException
-	 * @throws NoSuchAlgorithmException
-	 * @throws InvalidKeySpecException
-	 * @throws CertificateException
 	 */
-	public static void main(String[] args) throws OperatorCreationException, CMSException, IOException, PKCSException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException  {
+	public static void main(String[] args) throws Exception {
+	
 		final CommandLineParser parser = new DefaultParser();
 		final CommandLine cmd ;
 		
@@ -125,6 +117,7 @@ public class SignVerifyFileContents {
 		final boolean encap=cmd.hasOption(Parameter.encap.name());
 		Mode mode=Mode.valueOf( cmd.getOptionValue(Parameter.mode.name()).toLowerCase());
 		switch (mode) {
+		case xmlSign: 
 		case sign:
 			
 			if (!cmd.hasOption(Parameter.keyType.name())) {
@@ -162,17 +155,27 @@ public class SignVerifyFileContents {
 				showHelp("please use a valid value for keyType");
 				return;
 			}
+			if (mode==Mode.sign) {
+				byte[] signed = encap? sv.signEncapulsated(cert, data, privateKey):sv.signDetached(cert, data, privateKey);	
+				String base64 = new String(Base64.encode(signed),StandardCharsets.UTF_8);
 			
-			byte[] signed = encap? sv.signEncapulsated(cert, data, privateKey):sv.signDetached(cert, data, privateKey);	
-			String base64 = new String(Base64.encode(signed),StandardCharsets.UTF_8);
-		
-			if (cmd.hasOption(Parameter.url.name())){
-				System.out.println(URLEncoder.encode(base64,StandardCharsets.UTF_8.name()));
-			}else {
-				System.out.println(base64);
+				if (cmd.hasOption(Parameter.url.name())){
+					System.out.println(URLEncoder.encode(base64,StandardCharsets.UTF_8.name()));
+				}else {
+					System.out.println(base64);
+				}
+			} else {
+				//must be xml sign
+				XMLSignVerify signVerify = new ApacheXMLSignVerify();
+				if (!(cert instanceof  X509Certificate)) {
+					throw new SecurityException("certificate must be X509");
+				} 
+				byte[] signed = signVerify.doSignXML(algo, false,privateKey, (X509Certificate)cert, null, data);
+				Files.write(new File(cmd.getOptionValue(Parameter.in.name()+"_signed.xml")).toPath(), signed, StandardOpenOption.CREATE_NEW);				
 			}
 			
 			break;
+		case xmlVerify:
 		case verify:
 			boolean verify ;
 			boolean hasCert=cmd.hasOption(Parameter.keyType.name());
@@ -181,8 +184,7 @@ public class SignVerifyFileContents {
 				data = URLDecoder.decode(new String(data),StandardCharsets.UTF_8.name()).getBytes();
 			
 			if (hasCert) {
-				//has certificate so load it based on the options
-			
+				//has certificate so load it based on the option
 				switch (keyType) {
 				case combined:
 					if (!cmd.hasOption(Parameter.certAndKeyFile.name())) {
@@ -208,21 +210,29 @@ public class SignVerifyFileContents {
 					return;
 				}
 			} 
-			
-			if (encap) {
-					verify = hasCert? sv.verifyEncapsulated(Base64.decode(data),certificate):sv.verifyEncapsulated(Base64.decode(data));					
-			} else {
+			if (mode==Mode.verify) {
+				if (encap) {
+						verify = hasCert? sv.verifyEncapsulated(Base64.decode(data),certificate):sv.verifyEncapsulated(Base64.decode(data));					
+				} else {
+					
+					if (!cmd.hasOption(Parameter.sig.name())&&!encap) {
+						showHelp("please specify signature to verify");
+						return;
+					}
+					
+					byte[] sig=Files.readAllBytes(new File(cmd.getOptionValue(Parameter.sig.name())).toPath());
+					if (cmd.hasOption(Parameter.url.name())) 
+						sig = URLDecoder.decode(new String(sig),StandardCharsets.UTF_8.name()).getBytes();
 				
-				if (!cmd.hasOption(Parameter.sig.name())&&!encap) {
-					showHelp("please specify signature to verify");
-					return;
+					verify = hasCert? sv.verifyDetached(Base64.decode(sig),data,certificate):sv.verifyDetached(Base64.decode(sig),data);
 				}
-				
-				byte[] sig=Files.readAllBytes(new File(cmd.getOptionValue(Parameter.sig.name())).toPath());
-				if (cmd.hasOption(Parameter.url.name())) 
-					sig = URLDecoder.decode(new String(sig),StandardCharsets.UTF_8.name()).getBytes();
-			
-				verify = hasCert? sv.verifyDetached(Base64.decode(sig),data,certificate):sv.verifyDetached(Base64.decode(sig),data);
+			} else {
+				//must be xml verifiy
+				XMLSignVerify signVerify = new ApacheXMLSignVerify();
+				if (!(certificate instanceof  X509Certificate)) {
+					throw new SecurityException("certificate must be X509");
+				} 
+				verify = signVerify.doVerifyXML(algo, data, (X509Certificate)certificate);
 			}
 			System.out.println(verify?"VERIFIED":"FAILED TO VERIFY");
 			break;

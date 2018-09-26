@@ -6,7 +6,6 @@ import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
 import java.security.Signature;
@@ -37,17 +36,22 @@ import org.apache.xml.security.transforms.Transforms;
 import org.apache.xml.security.utils.Base64;
 import org.apache.xml.security.utils.Constants;
 import org.apache.xml.security.utils.ElementProxy;
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import matthewsgrout.signing.SignAlgorithm;
+import matthewsgrout.signing.SignVerify;
 import matthewsgrout.signing.XMLSignVerify;
 import matthewsgrout.signing.util.XMLUtils;
 
+
 public class ApacheXMLSignVerify implements XMLSignVerify {
 
+	
 	private final DocumentBuilderFactory documentBuilderFactory;
 
 	private final TransformerFactory transformerFactory;
@@ -55,7 +59,6 @@ public class ApacheXMLSignVerify implements XMLSignVerify {
 	private static final String W3C_DIGEST_ALGORITHM_URL = DigestMethod.SHA256;
 	private static final String SIGNATURE_CONTAINER_NAMESPACE = "urn:iso:std:iso:20022:tech:xsd:head.001.001.01";
 	private static final String[] SIGNATURE_CONTAINER_ELEMENT_PATH = new String[] { "AppHdr", "head:Sgntr" };
-	private static final String PROVIDER_NAME = "SunRsaSign";
 
 	public ApacheXMLSignVerify()
 			throws IOException, TransformerConfigurationException, TransformerFactoryConfigurationError {
@@ -67,11 +70,14 @@ public class ApacheXMLSignVerify implements XMLSignVerify {
 		documentBuilderFactory = DocumentBuilderFactory.newInstance();
 		documentBuilderFactory.setIgnoringComments(false);
 		documentBuilderFactory.setNamespaceAware(true);
-	}
+	
+		}
 
-	public byte[] doSignXML(SignAlgorithm algo, boolean withComments, final PrivateKey key,final X509Certificate certificate,
+	public byte[] doSignXML(SignAlgorithm algo, boolean withComments, final AsymmetricKeyParameter key,final X509Certificate certificate,
 			final byte[] xmlKeyInfo, final byte[] xmlData) throws IOException, ParserConfigurationException,
-			SAXException, XMLSecurityException, TransformerException, GeneralSecurityException {
+			SAXException, XMLSecurityException, TransformerException, GeneralSecurityException,CMSException,OperatorCreationException {
+		
+		final SignVerify sv = new PKCS7SignVerifyImpl(algo, false);
 
 		final Document document = documentBuilderFactory.newDocumentBuilder().parse(new ByteArrayInputStream(xmlData));
 
@@ -80,16 +86,13 @@ public class ApacheXMLSignVerify implements XMLSignVerify {
 		// Generate the digest for the XML document
 		final XMLSignature xmlSignature = new XMLSignature(document, "", algo.internal,
 				withComments ? Canonicalizer.ALGO_ID_C14N_WITH_COMMENTS : Canonicalizer.ALGO_ID_C14N_OMIT_COMMENTS);
-		final SignedInfo signedInfo = generateDocumentDigest(document, xmlSignature, certificate, xmlKeyInfo);
 
-		// Generate Signature
-		Signature sig = Signature.getInstance(algo.internal, Security.getProvider(PROVIDER_NAME));
-		sig.initSign(key);
-		sig.update(signedInfo.getCanonicalizedOctetStream());
+		final SignedInfo signedInfo = generateDocumentDigest(document, xmlSignature, certificate, xmlKeyInfo);
 
 		// Insert signature
 		XMLUtils.extractElement(xmlSignature.getElement(), "SignatureValue")
-				.setTextContent(Base64.encode(sig.sign(), 0));
+			.setTextContent(Base64.encode(sv.signDetached(certificate,signedInfo.getCanonicalizedOctetStream(), key), 0));
+
 
 		final StringWriter buffer = new StringWriter();
 
@@ -159,7 +162,7 @@ public class ApacheXMLSignVerify implements XMLSignVerify {
 
 	public boolean doVerifyXML(SignAlgorithm algo, final byte[] xmlData, X509Certificate certificate)
 			throws IOException, ParserConfigurationException, SAXException, XMLSecurityException,
-			GeneralSecurityException, XMLSignatureException {
+			GeneralSecurityException, XMLSignatureException,CMSException,OperatorCreationException {
 
 		documentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		documentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
@@ -205,25 +208,11 @@ public class ApacheXMLSignVerify implements XMLSignVerify {
 		final SignedInfo signedInfo = signature.getSignedInfo();
 
 		if (signedInfo != null && signedInfo.verify()) {
-			// Content matches the digest in the signed info, so now check the validity of
-			// the signed info itself
-			return verify(algo, signedInfo.getCanonicalizedOctetStream(), signature.getSignatureValue(), certificate);
+			// Content matches the digest in the signed info, so now check the validity of the signed info itself
+			final SignVerify sv = new PKCS7SignVerifyImpl(algo, false);
+			return sv.verifyDetached(signature.getSignatureValue(), signedInfo.getCanonicalizedOctetStream(), certificate);
 		} else {
 			return false;
 		}
 	}
-
-	private boolean verify(SignAlgorithm algo, byte[] dataBytes, byte[] signatureBytes, X509Certificate certificate)
-			throws SignatureException, InvalidKeyException, NoSuchAlgorithmException {
-
-		Signature signature = Signature.getInstance(algo.internal, Security.getProvider(PROVIDER_NAME));
-
-		PublicKey publicKey = certificate.getPublicKey();
-
-		signature.initVerify(publicKey);
-		signature.update(dataBytes);
-
-		return signature.verify(signatureBytes);
-	}
-
 }
