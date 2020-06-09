@@ -50,7 +50,7 @@ public class SignVerifyFileContents {
 		in("path to the input data to sign or verify",new String[]{"path"},true),
 		keyFile("path to key file",new String[]{"path"},false),
 		keyType("how are the keys presented: combined or separate",new String[]{"type"},false),
-		mode("mode in which to operate: sign or verify - xmlSign or xmlVerify (ISO20022",new String[]{"mode"},true),
+		mode("mode in which to operate: sign or verify - for xml use: xmlSign or xmlVerify",new String[]{"mode"},true),
 		sig("path to the detached signature for verification",new String[]{"path"},false),
 		url("encode/decode signature as URL data",false),
 		v("display verbose information",false);
