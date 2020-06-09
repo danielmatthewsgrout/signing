@@ -248,11 +248,11 @@ public class SignVerifyFileContents {
 	}
 	
 	private static void showHelp()  {
-		System.out.println("[-------------------------------------------------------------------]");
-		System.out.println("|              Sign and Verify File Contents v3.0                   |");
-		System.out.println("|-------------------------------------------------------------------|");
-		System.out.println("| https://gitlab.com/danielmg/signing/                              |");
-		System.out.println("[-------------------------------------------------------------------]");
+		System.out.println("[-------------------------------------------------------------------------]");
+		System.out.println("|              Sign and Verify File Contents v3.0                         |");
+		System.out.println("|-------------------------------------------------------------------------|");
+		System.out.println("| https://github.com/danielmatthewsgrout/signing/tree/master/signingstuff |");
+		System.out.println("[-------------------------------------------------------------------------]");
 		System.out.println();
 		
 		new HelpFormatter().printHelp("SignVerifyFileContents" , getOptions());
