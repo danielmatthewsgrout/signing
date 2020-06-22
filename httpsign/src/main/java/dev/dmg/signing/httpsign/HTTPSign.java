@@ -16,6 +16,7 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -51,6 +52,7 @@ public class HTTPSign {
         certName3("Label of TLS 3rd certificate", new String[] { "name" }, false),
         hash("Hashing Mode: SHA1 or SHA256, SHA384, or SHA512", new String[] { "mode" }, true),
         in("path to the input data to sign or verify", new String[] { "path" }, true),
+        headersFile("path to headers file - use properties format - key=value", new String[] { "path" }, false),
         keyFile("path to key file", new String[] { "path" }, false), v("display verbose information", false);
 
         final String description;
@@ -82,6 +84,7 @@ public class HTTPSign {
         }
 
         final String keyPath = cmd.getOptionValue(Parameter.keyFile.name());
+        final String headerPath = cmd.getOptionValue(Parameter.headersFile.name());
         final String fname = cmd.getOptionValue(Parameter.in.name());
         final String url = cmd.getOptionValue(Parameter.url.name());
         final boolean verbose = cmd.hasOption(Parameter.v.name());
@@ -127,8 +130,23 @@ public class HTTPSign {
             }
         }
 
-        HttpResponse<String> resp = httpSigner.signAndSend(url, method, data, readPrivateKey(keyPath), algo, certs);
+        Map<String,String> headersMap = new HashMap<>();
 
+        List<String> headers = Files.readAllLines(new File(headerPath).toPath());
+
+        for (String s: headers) {
+            String[] vals = s.split("=");
+            if (vals.length==2) {
+                headersMap.put(vals[0].trim(), vals[1].trim());
+            }else {
+                logger.warning("invalid entry in header file: " +s);
+            }
+        }
+
+        HttpResponse<String> resp = httpSigner.signAndSend(url, method, data, readPrivateKey(keyPath), algo, certs, headersMap);
+
+        logger.info("Got response code: " + resp.statusCode());
+        logger.info("Got body: " + resp.body());
     }
 
     private static void showHelp(String msg) {
