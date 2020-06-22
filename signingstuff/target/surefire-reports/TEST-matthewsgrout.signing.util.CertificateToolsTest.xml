@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite tests="2" failures="0" name="matthewsgrout.signing.util.CertificateToolsTest" time="0.046" errors="2" skipped="0">
+  <properties>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="java.vm.version" value="11.0.7+10-post-Ubuntu-3ubuntu1"/>
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-11-openjdk-amd64/lib"/>
+    <property name="maven.multiModuleProjectDirectory" value="/home/daniel/workspace/signing/signingstuff"/>
+    <property name="java.vm.vendor" value="Ubuntu"/>
+    <property name="java.vendor.url" value="https://ubuntu.com/"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="path.separator" value=":"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="sun.os.patch.level" value="unknown"/>
+    <property name="user.country" value="GB"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="/home/daniel/workspace/signing/signingstuff"/>
+    <property name="java.vm.compressedOopsMode" value="Zero based"/>
+    <property name="java.runtime.version" value="11.0.7+10-post-Ubuntu-3ubuntu1"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.io.tmpdir" value="/tmp"/>
+    <property name="line.separator" value="
+"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="os.name" value="Linux"/>
+    <property name="classworlds.conf" value="/usr/share/maven/bin/m2.conf"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/usr/java/packages/lib:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib"/>
+    <property name="maven.conf" value="/usr/share/maven/conf"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="java.class.version" value="55.0"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="5.7.0-050700-generic"/>
+    <property name="library.jansi.path" value="/usr/share/maven/lib/jansi-native"/>
+    <property name="user.home" value="/home/daniel"/>
+    <property name="user.timezone" value="Europe/London"/>
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.specification.version" value="11"/>
+    <property name="user.name" value="daniel"/>
+    <property name="java.class.path" value="/usr/share/maven/boot/plexus-classworlds-2.x.jar"/>
+    <property name="java.vm.specification.version" value="11"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher install"/>
+    <property name="java.home" value="/usr/lib/jvm/java-11-openjdk-amd64"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="awt.toolkit" value="sun.awt.X11.XToolkit"/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="java.version" value="11.0.7"/>
+    <property name="securerandom.source" value="file:/dev/./urandom"/>
+    <property name="java.vendor" value="Ubuntu"/>
+    <property name="maven.home" value="/usr/share/maven"/>
+    <property name="file.separator" value="/"/>
+    <property name="java.version.date" value="2020-04-14"/>
+    <property name="java.vendor.url.bug" value="https://bugs.launchpad.net/ubuntu/+source/openjdk-lts"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.desktop" value="gnome"/>
+    <property name="sun.cpu.isalist" value=""/>
+  </properties>
+  <testcase classname="matthewsgrout.signing.util.CertificateToolsTest" name="testLoadRSAPrivateKeyAndLoadX509Certificate" time="0.024">
+    <error message="verifier not valid at signingTime" type="org.bouncycastle.cms.CMSVerifierCertificateNotValidException">org.bouncycastle.cms.CMSVerifierCertificateNotValidException: verifier not valid at signingTime
+	at org.bouncycastle.cms.SignerInformation.verify(Unknown Source)
+	at matthewsgrout.signing.impl.PKCS7SignVerifyImpl.verifiy(PKCS7SignVerifyImpl.java:130)
+	at matthewsgrout.signing.impl.PKCS7SignVerifyImpl.verifyEncapsulated(PKCS7SignVerifyImpl.java:75)
+	at matthewsgrout.signing.util.CertificateToolsTest.testLoadRSAPrivateKeyAndLoadX509Certificate(CertificateToolsTest.java:39)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:252)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:141)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:112)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:189)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:165)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:85)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:115)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:75)
+</error>
+    <system-out>2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:261 - Certificate information: 
+Version Number: 1
+Issuer: C=JP,ST=Tokyo,L=Chuo-ku,O=Frank4DD,OU=WebCert Support,CN=Frank4DD Web CA,E=support@frank4dd.com
+Not After: Mon Aug 21 06:28:00 BST 2017
+Not Before: Wed Aug 22 06:28:00 BST 2012
+Serial Number: 3581
+Signature: gCKBTczLyRhieIO4oRdImZtUH4rW6kfFYMDxHooxkZd9t7kFF3yzjRxjokFgvnZOCp2XzPkSTx0Lg02l+lxlz+15PVaqI7bCekYeOAwO4MvWbEJk0vjbaMemI9aRancC4Mhzu0vVCNt8BQcBBjCYeRaA8/5PbAC/Sk63foaAwIw=
+Subject: C=JP,ST=Tokyo,O=Frank4DD,CN=www.example.com
+Subject Public Key Info: #0382020F003082020A0282020100B0BD621338B7B24DB4B543F51A72A7882C82B5E941CBBD2CA62256DB893EE6A43E12330077E37C692255CDEB87C2D18D72953E8B2DE5F84ADEC0709AC6215DC032625CB03B0DCE0A39EFB2EAB4DBE73A42C7D06A238AC144290891117EA03A0ABDB564AAC1A10D71C4C4B005EE57A010D524FE1B5EACD3488DF768635FD57F57AEAC9D1C13B09FE9E164692D27408F8DBBDA188CD7DA8883DCEB87DD9EDAB432EC4FD44A15B88293AB860D9FE9F702066F9A5C881AFAAC5A48B72170352F3D7AE92314DDFCE590DB7421BC81339066CF94103C27B370F4A0B26B16D830115BD62D25063C0A2E399CA2286223B3D5B6100EBBF07BD43DA129C1632A97EFE03D546A6FF456E98AC21C2E85954D8CBAB5051D452912750A2A0B1B8C024EBD0B560B6FBD4CA116B4BEDCF7544744F91E501058F3324031E00A96CE1D6D3073485BB8D78EFE54BCD8B8E2786345C4A98C04517D96C376CEC03A430DF65E46F6FC4165B570ADA6E3B0573B5D938303AE76835F2F73319BAA147A6FE655936C35700DDC8440D7256256C011B0DEBC4428FEB00E64597DE0CBBADEB0202E23DE64DE08752FF8F28AF929A41A08E7B40EE01BE0658D210E367184394EC1075ADF8520E00C4A97FD84D3E30DEBB5B9F7F8D033ADB22C86797F4D562A8AB6DB5A1E9BDDEEB6F6CEC6AC6DC006525F9F350263E2A2263D207D4E1A99A8F4EE90470CFCDB5B790203010001
+
+2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:224 - Signature information: 
+Version Number: 1
+Algorithm: 1.3.14.3.2.26
+
+
+Content Type: 1.2.840.113549.1.7.1
+Signed Attribute: 1.2.840.113549.1.9.4
+Value: #2fd4e1c67a2d28fced849ee1bb76e7391b93eb12
+Signed Attribute: 1.2.840.113549.1.9.3
+Value: 1.2.840.113549.1.7.1
+Signed Attribute: 1.2.840.113549.1.9.52
+Algorithm: SHA1withRSA
+Signed Attribute: 1.2.840.113549.1.9.5
+Time: Tue Jun 09 10:27:18 BST 2020
+
+2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:224 - Signature information: 
+Version Number: 1
+Algorithm: 1.3.14.3.2.26
+
+
+Content Type: 1.2.840.113549.1.7.1
+Signed Attribute: 1.2.840.113549.1.9.4
+Value: #2fd4e1c67a2d28fced849ee1bb76e7391b93eb12
+Signed Attribute: 1.2.840.113549.1.9.3
+Value: 1.2.840.113549.1.7.1
+Signed Attribute: 1.2.840.113549.1.9.52
+Value: [[1.3.14.3.2.26, NULL], [1][1.2.840.113549.1.1.1, NULL]]
+Signed Attribute: 1.2.840.113549.1.9.5
+Value: 200609092718Z
+
+2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:168 - Signer information: 
+Digest Algo: SHA1
+Signer ID Serial: 3581
+Signer ID Issuer: C=JP,ST=Tokyo,L=Chuo-ku,O=Frank4DD,OU=WebCert Support,CN=Frank4DD Web CA,E=support@frank4dd.com
+
+2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:261 - Certificate information: 
+Version Number: 1
+Issuer: C=JP,ST=Tokyo,L=Chuo-ku,O=Frank4DD,OU=WebCert Support,CN=Frank4DD Web CA,E=support@frank4dd.com
+Not After: Mon Aug 21 06:28:00 BST 2017
+Not Before: Wed Aug 22 06:28:00 BST 2012
+Serial Number: 3581
+Signature: gCKBTczLyRhieIO4oRdImZtUH4rW6kfFYMDxHooxkZd9t7kFF3yzjRxjokFgvnZOCp2XzPkSTx0Lg02l+lxlz+15PVaqI7bCekYeOAwO4MvWbEJk0vjbaMemI9aRancC4Mhzu0vVCNt8BQcBBjCYeRaA8/5PbAC/Sk63foaAwIw=
+Subject: C=JP,ST=Tokyo,O=Frank4DD,CN=www.example.com
+Subject Public Key Info: #0382020F003082020A0282020100B0BD621338B7B24DB4B543F51A72A7882C82B5E941CBBD2CA62256DB893EE6A43E12330077E37C692255CDEB87C2D18D72953E8B2DE5F84ADEC0709AC6215DC032625CB03B0DCE0A39EFB2EAB4DBE73A42C7D06A238AC144290891117EA03A0ABDB564AAC1A10D71C4C4B005EE57A010D524FE1B5EACD3488DF768635FD57F57AEAC9D1C13B09FE9E164692D27408F8DBBDA188CD7DA8883DCEB87DD9EDAB432EC4FD44A15B88293AB860D9FE9F702066F9A5C881AFAAC5A48B72170352F3D7AE92314DDFCE590DB7421BC81339066CF94103C27B370F4A0B26B16D830115BD62D25063C0A2E399CA2286223B3D5B6100EBBF07BD43DA129C1632A97EFE03D546A6FF456E98AC21C2E85954D8CBAB5051D452912750A2A0B1B8C024EBD0B560B6FBD4CA116B4BEDCF7544744F91E501058F3324031E00A96CE1D6D3073485BB8D78EFE54BCD8B8E2786345C4A98C04517D96C376CEC03A430DF65E46F6FC4165B570ADA6E3B0573B5D938303AE76835F2F73319BAA147A6FE655936C35700DDC8440D7256256C011B0DEBC4428FEB00E64597DE0CBBADEB0202E23DE64DE08752FF8F28AF929A41A08E7B40EE01BE0658D210E367184394EC1075ADF8520E00C4A97FD84D3E30DEBB5B9F7F8D033ADB22C86797F4D562A8AB6DB5A1E9BDDEEB6F6CEC6AC6DC006525F9F350263E2A2263D207D4E1A99A8F4EE90470CFCDB5B790203010001
+
+</system-out>
+  </testcase>
+  <testcase classname="matthewsgrout.signing.util.CertificateToolsTest" name="testLoadCombined" time="0.022">
+    <error message="verifier not valid at signingTime" type="org.bouncycastle.cms.CMSVerifierCertificateNotValidException">org.bouncycastle.cms.CMSVerifierCertificateNotValidException: verifier not valid at signingTime
+	at org.bouncycastle.cms.SignerInformation.verify(Unknown Source)
+	at matthewsgrout.signing.impl.PKCS7SignVerifyImpl.verifiy(PKCS7SignVerifyImpl.java:130)
+	at matthewsgrout.signing.impl.PKCS7SignVerifyImpl.verifyEncapsulated(PKCS7SignVerifyImpl.java:75)
+	at matthewsgrout.signing.util.CertificateToolsTest.testLoadCombined(CertificateToolsTest.java:50)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:252)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:141)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:112)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:189)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:165)
+	at org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:85)
+	at org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:115)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:75)
+</error>
+    <system-out>2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:261 - Certificate information: 
+Version Number: 1
+Issuer: C=JP,ST=Tokyo,L=Chuo-ku,O=Frank4DD,OU=WebCert Support,CN=Frank4DD Web CA,E=support@frank4dd.com
+Not After: Mon Aug 21 06:28:00 BST 2017
+Not Before: Wed Aug 22 06:28:00 BST 2012
+Serial Number: 3581
+Signature: gCKBTczLyRhieIO4oRdImZtUH4rW6kfFYMDxHooxkZd9t7kFF3yzjRxjokFgvnZOCp2XzPkSTx0Lg02l+lxlz+15PVaqI7bCekYeOAwO4MvWbEJk0vjbaMemI9aRancC4Mhzu0vVCNt8BQcBBjCYeRaA8/5PbAC/Sk63foaAwIw=
+Subject: C=JP,ST=Tokyo,O=Frank4DD,CN=www.example.com
+Subject Public Key Info: #0382020F003082020A0282020100B0BD621338B7B24DB4B543F51A72A7882C82B5E941CBBD2CA62256DB893EE6A43E12330077E37C692255CDEB87C2D18D72953E8B2DE5F84ADEC0709AC6215DC032625CB03B0DCE0A39EFB2EAB4DBE73A42C7D06A238AC144290891117EA03A0ABDB564AAC1A10D71C4C4B005EE57A010D524FE1B5EACD3488DF768635FD57F57AEAC9D1C13B09FE9E164692D27408F8DBBDA188CD7DA8883DCEB87DD9EDAB432EC4FD44A15B88293AB860D9FE9F702066F9A5C881AFAAC5A48B72170352F3D7AE92314DDFCE590DB7421BC81339066CF94103C27B370F4A0B26B16D830115BD62D25063C0A2E399CA2286223B3D5B6100EBBF07BD43DA129C1632A97EFE03D546A6FF456E98AC21C2E85954D8CBAB5051D452912750A2A0B1B8C024EBD0B560B6FBD4CA116B4BEDCF7544744F91E501058F3324031E00A96CE1D6D3073485BB8D78EFE54BCD8B8E2786345C4A98C04517D96C376CEC03A430DF65E46F6FC4165B570ADA6E3B0573B5D938303AE76835F2F73319BAA147A6FE655936C35700DDC8440D7256256C011B0DEBC4428FEB00E64597DE0CBBADEB0202E23DE64DE08752FF8F28AF929A41A08E7B40EE01BE0658D210E367184394EC1075ADF8520E00C4A97FD84D3E30DEBB5B9F7F8D033ADB22C86797F4D562A8AB6DB5A1E9BDDEEB6F6CEC6AC6DC006525F9F350263E2A2263D207D4E1A99A8F4EE90470CFCDB5B790203010001
+
+2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:224 - Signature information: 
+Version Number: 1
+Algorithm: 1.3.14.3.2.26
+
+
+Content Type: 1.2.840.113549.1.7.1
+Signed Attribute: 1.2.840.113549.1.9.4
+Value: #2fd4e1c67a2d28fced849ee1bb76e7391b93eb12
+Signed Attribute: 1.2.840.113549.1.9.3
+Value: 1.2.840.113549.1.7.1
+Signed Attribute: 1.2.840.113549.1.9.52
+Algorithm: SHA1withRSA
+Signed Attribute: 1.2.840.113549.1.9.5
+Time: Tue Jun 09 10:27:18 BST 2020
+
+2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:224 - Signature information: 
+Version Number: 1
+Algorithm: 1.3.14.3.2.26
+
+
+Content Type: 1.2.840.113549.1.7.1
+Signed Attribute: 1.2.840.113549.1.9.4
+Value: #2fd4e1c67a2d28fced849ee1bb76e7391b93eb12
+Signed Attribute: 1.2.840.113549.1.9.3
+Value: 1.2.840.113549.1.7.1
+Signed Attribute: 1.2.840.113549.1.9.52
+Value: [[1.3.14.3.2.26, NULL], [1][1.2.840.113549.1.1.1, NULL]]
+Signed Attribute: 1.2.840.113549.1.9.5
+Value: 200609092718Z
+
+2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:168 - Signer information: 
+Digest Algo: SHA1
+Signer ID Serial: 3581
+Signer ID Issuer: C=JP,ST=Tokyo,L=Chuo-ku,O=Frank4DD,OU=WebCert Support,CN=Frank4DD Web CA,E=support@frank4dd.com
+
+2020-06-09 10:27:18 INFO  PKCS7SignVerifyImpl:261 - Certificate information: 
+Version Number: 1
+Issuer: C=JP,ST=Tokyo,L=Chuo-ku,O=Frank4DD,OU=WebCert Support,CN=Frank4DD Web CA,E=support@frank4dd.com
+Not After: Mon Aug 21 06:28:00 BST 2017
+Not Before: Wed Aug 22 06:28:00 BST 2012
+Serial Number: 3581
+Signature: gCKBTczLyRhieIO4oRdImZtUH4rW6kfFYMDxHooxkZd9t7kFF3yzjRxjokFgvnZOCp2XzPkSTx0Lg02l+lxlz+15PVaqI7bCekYeOAwO4MvWbEJk0vjbaMemI9aRancC4Mhzu0vVCNt8BQcBBjCYeRaA8/5PbAC/Sk63foaAwIw=
+Subject: C=JP,ST=Tokyo,O=Frank4DD,CN=www.example.com
+Subject Public Key Info: #0382020F003082020A0282020100B0BD621338B7B24DB4B543F51A72A7882C82B5E941CBBD2CA62256DB893EE6A43E12330077E37C692255CDEB87C2D18D72953E8B2DE5F84ADEC0709AC6215DC032625CB03B0DCE0A39EFB2EAB4DBE73A42C7D06A238AC144290891117EA03A0ABDB564AAC1A10D71C4C4B005EE57A010D524FE1B5EACD3488DF768635FD57F57AEAC9D1C13B09FE9E164692D27408F8DBBDA188CD7DA8883DCEB87DD9EDAB432EC4FD44A15B88293AB860D9FE9F702066F9A5C881AFAAC5A48B72170352F3D7AE92314DDFCE590DB7421BC81339066CF94103C27B370F4A0B26B16D830115BD62D25063C0A2E399CA2286223B3D5B6100EBBF07BD43DA129C1632A97EFE03D546A6FF456E98AC21C2E85954D8CBAB5051D452912750A2A0B1B8C024EBD0B560B6FBD4CA116B4BEDCF7544744F91E501058F3324031E00A96CE1D6D3073485BB8D78EFE54BCD8B8E2786345C4A98C04517D96C376CEC03A430DF65E46F6FC4165B570ADA6E3B0573B5D938303AE76835F2F73319BAA147A6FE655936C35700DDC8440D7256256C011B0DEBC4428FEB00E64597DE0CBBADEB0202E23DE64DE08752FF8F28AF929A41A08E7B40EE01BE0658D210E367184394EC1075ADF8520E00C4A97FD84D3E30DEBB5B9F7F8D033ADB22C86797F4D562A8AB6DB5A1E9BDDEEB6F6CEC6AC6DC006525F9F350263E2A2263D207D4E1A99A8F4EE90470CFCDB5B790203010001
+
+</system-out>
+  </testcase>
+</testsuite>

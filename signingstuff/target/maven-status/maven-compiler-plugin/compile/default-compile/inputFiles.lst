@@ -1,0 +1,9 @@
+/home/daniel/workspace/signing/signingstuff/src/main/java/matthewsgrout/signing/SignAlgorithm.java
+/home/daniel/workspace/signing/signingstuff/src/main/java/matthewsgrout/signing/SignVerify.java
+/home/daniel/workspace/signing/signingstuff/src/main/java/matthewsgrout/signing/impl/PKCS7SignVerifyImpl.java
+/home/daniel/workspace/signing/signingstuff/src/main/java/matthewsgrout/signing/util/CertificateTools.java
+/home/daniel/workspace/signing/signingstuff/src/main/java/matthewsgrout/signing/util/XMLUtils.java
+/home/daniel/workspace/signing/signingstuff/src/main/java/matthewsgrout/signing/stuff/SignVerifyFileContents.java
+/home/daniel/workspace/signing/signingstuff/src/main/java/matthewsgrout/signing/impl/ApacheXMLSignVerify.java
+/home/daniel/workspace/signing/signingstuff/src/main/java/matthewsgrout/signing/XMLSignVerify.java
+/home/daniel/workspace/signing/signingstuff/src/main/java/matthewsgrout/signing/util/CertificateAndKey.java
