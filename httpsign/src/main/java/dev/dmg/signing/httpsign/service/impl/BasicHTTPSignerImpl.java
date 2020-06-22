@@ -19,7 +19,6 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
@@ -54,15 +53,17 @@ public class BasicHTTPSignerImpl implements HTTPSigner {
             throws IOException, GeneralSecurityException, InterruptedException {
                         
         final String signature =  Base64.getUrlEncoder().encodeToString(signData.sign(data, privateKey, signatureType.getAlgo()));
-     
+        logger.fine("signature b64: " + signature);
         SSLContext ctx =SSLContext.getDefault();
 
         if (clientCertificates!=null&&clientCertificates.size()>0) {  //Build an SSL context to use our pinned certificate
+            logger.fine("configuring SSL Context for " + clientCertificates.size() + " certs");
             TrustManagerFactory tmf = TrustManagerFactory
             .getInstance(TrustManagerFactory.getDefaultAlgorithm());
             KeyStore ks = KeyStore.getInstance("SunX509");
             ks.load(null); 
              for (String certName:clientCertificates.keySet()) {
+                 logger.fine("adding certificate: " + certName);
                 ks.setCertificateEntry(certName,clientCertificates.get(certName));
             }
             tmf.init(ks);
@@ -70,6 +71,7 @@ public class BasicHTTPSignerImpl implements HTTPSigner {
             ctx.init(null, tmf.getTrustManagers(), null);
         }
 
+        logger.fine("setting up http client");
         final HttpClient 
         client = HttpClient.newBuilder()
         .version(Version.HTTP_1_1)
@@ -77,17 +79,22 @@ public class BasicHTTPSignerImpl implements HTTPSigner {
         .sslContext(ctx) 
         .build();
 
+        logger.fine("payload is " + data.length + " body is: " + new String(data,ENCODING));
+        logger.fine("using encoding: " + ENCODING);
         Builder build = HttpRequest.newBuilder()
         .uri(URI.create(url))
         .setHeader("Signature", signature)
         .method(method.toString(),BodyPublishers.ofString(new String(data,ENCODING)));
 
+        logger.fine("setting headers");
         for(String k:headers.keySet()){
-            build.setHeader(k, headers.get(k));
+            String v =  headers.get(k);
+            logger.fine("header key: " + k + " value:"+v);
+            build.setHeader(k,v);
         }
 
         final HttpRequest req = build.build();
-
+        logger.fine("sending");
         return  client.send(req,  BodyHandlers.ofString());
     }
 }

@@ -17,6 +17,7 @@ public enum BasicSignDataImpl implements SignData {
 
     @Override
     public byte[] sign(final byte[] data,final PrivateKey privateKey,final String algo) throws GeneralSecurityException {
+        logger.fine("signing " + data.length + "bytes of data with algo: " + algo);
         Signature privateSignature = Signature.getInstance(algo);
         privateSignature.initSign(privateKey);
         privateSignature.update(data);

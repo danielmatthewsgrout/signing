@@ -84,7 +84,6 @@ public class HTTPSign {
         }
 
         final String keyPath = cmd.getOptionValue(Parameter.keyFile.name());
-        final String headerPath = cmd.getOptionValue(Parameter.headersFile.name());
         final String fname = cmd.getOptionValue(Parameter.in.name());
         final String url = cmd.getOptionValue(Parameter.url.name());
         final boolean verbose = cmd.hasOption(Parameter.v.name());
@@ -129,21 +128,27 @@ public class HTTPSign {
                 }
             }
         }
+        logger.fine("Arguments: " + String.join(",", cmd.getArgs()));
 
-        Map<String,String> headersMap = new HashMap<>();
+        Map<String, String> headersMap = new HashMap<>();
 
-        List<String> headers = Files.readAllLines(new File(headerPath).toPath());
+        if (cmd.hasOption(Parameter.headersFile.name())) {
+            final String headerPath = cmd.getOptionValue(Parameter.headersFile.name());
 
-        for (String s: headers) {
-            String[] vals = s.split("=");
-            if (vals.length==2) {
-                headersMap.put(vals[0].trim(), vals[1].trim());
-            }else {
-                logger.warning("invalid entry in header file: " +s);
+            List<String> headers = Files.readAllLines(new File(headerPath).toPath());
+            logger.fine("read " + headers.size() + "lines from: " + headerPath);
+            for (String s : headers) {
+                String[] vals = s.split("=");
+                if (vals.length == 2) {
+                    headersMap.put(vals[0].trim(), vals[1].trim());
+                } else {
+                    logger.warning("invalid entry in header file: " + s);
+                }
             }
+            logger.fine("got " + headersMap.size() + " headers");
         }
-
-        HttpResponse<String> resp = httpSigner.signAndSend(url, method, data, readPrivateKey(keyPath), algo, certs, headersMap);
+        HttpResponse<String> resp = httpSigner.signAndSend(url, method, data, readPrivateKey(keyPath), algo, certs,
+                headersMap);
 
         logger.info("Got response code: " + resp.statusCode());
         logger.info("Got body: " + resp.body());
