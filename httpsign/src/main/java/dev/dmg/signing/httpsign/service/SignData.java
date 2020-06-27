@@ -8,4 +8,4 @@ public interface SignData {
     
     public byte[] sign(byte[] data, PrivateKey privateKey, String algo) throws GeneralSecurityException;
 
-}
+} 

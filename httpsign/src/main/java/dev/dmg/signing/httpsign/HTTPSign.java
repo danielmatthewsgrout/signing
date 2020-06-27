@@ -1,19 +1,12 @@
 package dev.dmg.signing.httpsign;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.HashMap;
 import java.util.List;
@@ -44,12 +37,6 @@ public class HTTPSign {
 
     private enum Parameter {
         url("URL to use", new String[] { "url" }, true), method("PUT or POST", new String[] { "method" }, true),
-        certFile("path to TLS certificate file", new String[] { "path" }, false),
-        certName("Label of TLS certificate", new String[] { "name" }, false),
-        certFile2("path to TLS 2nd certificate file", new String[] { "path" }, false),
-        certName2("Label of TLS 2nd certificate", new String[] { "name" }, false),
-        certFile3("path to TLS 3rd certificate file", new String[] { "path" }, false),
-        certName3("Label of TLS 3rd certificate", new String[] { "name" }, false),
         hash("Hashing Mode: SHA1 or SHA256, SHA384, or SHA512", new String[] { "mode" }, true),
         in("path to the input data to sign or verify", new String[] { "path" }, true),
         headersFile("path to headers file - use properties format - key=value", new String[] { "path" }, false),
@@ -106,28 +93,7 @@ public class HTTPSign {
 
         final HTTPSigner httpSigner = BasicHTTPSignerImpl.getHttpSigner(BasicSignDataImpl.INSTANCE);
         final byte[] data = Files.readAllBytes(new File(fname).toPath());
-        final Map<String, X509Certificate> certs = new HashMap<>();
 
-        if (cmd.hasOption(Parameter.certFile.name()) && cmd.hasOption(Parameter.certName.name())) {
-            final String certPath = cmd.getOptionValue(Parameter.certFile.name());
-            final String certName = cmd.getOptionValue(Parameter.certName.name());
-
-            certs.put(certName, readCert(certPath));
-
-            if (cmd.hasOption(Parameter.certFile2.name()) && cmd.hasOption(Parameter.certName2.name())) {
-                final String certPath2 = cmd.getOptionValue(Parameter.certFile2.name());
-                final String certName2 = cmd.getOptionValue(Parameter.certName2.name());
-
-                certs.put(certName2, readCert(certPath2));
-                if (cmd.hasOption(Parameter.certFile3.name()) && cmd.hasOption(Parameter.certName3.name())) {
-                    final String certPath3 = cmd.getOptionValue(Parameter.certFile3.name());
-                    final String certName3 = cmd.getOptionValue(Parameter.certName3.name());
-
-                    certs.put(certName3, readCert(certPath3));
-
-                }
-            }
-        }
         logger.fine("Arguments: " + String.join(",", cmd.getArgs()));
 
         Map<String, String> headersMap = new HashMap<>();
@@ -147,7 +113,7 @@ public class HTTPSign {
             }
             logger.fine("got " + headersMap.size() + " headers");
         }
-        HttpResponse<String> resp = httpSigner.signAndSend(url, method, data, readPrivateKey(keyPath), algo, certs,
+        HttpResponse<String> resp = httpSigner.signAndSend(url, method, data, readPrivateKey(keyPath), algo,
                 headersMap);
 
         logger.info("Got response code: " + resp.statusCode());
@@ -198,15 +164,6 @@ public class HTTPSign {
         PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         return kf.generatePrivate(spec);
-    }
-
-    private static X509Certificate readCert(String filename)
-            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException {
-
-        CertificateFactory fact = CertificateFactory.getInstance("X.509");
-        try (FileInputStream is = new FileInputStream(filename)) {
-            return (X509Certificate) fact.generateCertificate(is);
-        }
     }
 
 }
