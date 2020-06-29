@@ -39,10 +39,14 @@ public interface HTTPSigner {
      * 
      * @param headers - map of key/value of headers to send in the request.
      * 
+     * @parameter disableSSLValidation ronseal
+     * 
+     * @parameter verbose use verbose logging
+     * 
      * @return an HTTP Response
      */
     public HttpResponse<String> signAndSend(String URL, HTTPMethod method, byte[] data, PrivateKey signingKey,
-            SignatureType signatureType,final Map<String,String> headers)
+            SignatureType signatureType,final Map<String,String> headers,boolean disableSSLValidation, boolean verbose)
             throws IOException, GeneralSecurityException, InterruptedException;
 
 }

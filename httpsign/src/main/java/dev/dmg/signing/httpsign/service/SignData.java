@@ -6,6 +6,6 @@ import java.security.PrivateKey;
 public interface SignData {
  
     
-    public byte[] sign(byte[] data, PrivateKey privateKey, String algo) throws GeneralSecurityException;
+    public byte[] sign(byte[] data, PrivateKey privateKey, String algo, boolean verbose) throws GeneralSecurityException;
 
 } 

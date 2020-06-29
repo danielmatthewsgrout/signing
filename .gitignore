@@ -1,1 +1,7 @@
 signingstuff/.settings/org.eclipse.jdt.core.prefs
+httpsign/target/
+**/target/
+**/target
+httpsign/keys/
+httpsign/*.txt
+httpsign/*.log
